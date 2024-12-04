@@ -1,11 +1,31 @@
 const mongoose = require("mongoose");
 
-const serviceSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String },
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  price: { type: Number }, // Optional if offered for free or exchange
-  createdAt: { type: Date, default: Date.now },
-});
+const serviceSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    category: {
+      type: String,
+      enum: [
+        "Programming",
+        "Design",
+        "Marketing",
+        "Coaching",
+        "Building",
+        "Others",
+      ],
+      required: true,
+    },
+    price: { type: Number, required: true },
+    images: [{ type: String }],
+    visibilityStatus: {
+      type: String,
+      enum: ["active", "inactive", "completed"],
+      default: "active",
+    },
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("Service", serviceSchema);
+const Service = mongoose.model("Service", serviceSchema);
+module.exports = Service;

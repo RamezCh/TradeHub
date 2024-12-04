@@ -3,17 +3,31 @@ const mongoose = require("mongoose");
 const itemSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    description: { type: String },
-    category: { type: String, required: true },
-    condition: { type: String, enum: ["New", "Used"], required: true },
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    description: { type: String, required: true },
+    category: {
+      type: String,
+      enum: [
+        "Electronics",
+        "Clothing",
+        "Furniture",
+        "Sport",
+        "Beauty",
+        "Toys",
+        "Video Games",
+        "Books",
+      ],
       required: true,
     },
-    images: [{ type: String }], // URLs
+    price: { type: Number, required: true },
+    images: [{ type: String }],
+    visibilityStatus: {
+      type: String,
+      enum: ["active", "inactive", "sold"],
+      default: "active",
+    },
   },
-  { timestamps: true } // Enables createdAt and updatedAt
+  { timestamps: true }
 );
 
-module.exports = mongoose.model("Item", itemSchema);
+const Item = mongoose.model("Item", itemSchema);
+module.exports = Item;

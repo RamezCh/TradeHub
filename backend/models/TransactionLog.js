@@ -1,12 +1,22 @@
 const mongoose = require("mongoose");
 
-const transactionLogSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  offer: { type: mongoose.Schema.Types.ObjectId, ref: "Offer", required: true },
-  payment: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" },
-  type: { type: String, enum: ["Offer", "Payment"], required: true },
-  status: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
+const transactionLogSchema = new mongoose.Schema(
+  {
+    offer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Offer",
+      required: true,
+    },
+    action: {
+      type: String,
+      enum: ["created", "paid", "completed", "cancelled"],
+      required: true,
+    },
+    status: { type: String, enum: ["success", "failure"], required: true },
+    description: { type: String },
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("TransactionLog", transactionLogSchema);
+const TransactionLog = mongoose.model("TransactionLog", transactionLogSchema);
+module.exports = TransactionLog;

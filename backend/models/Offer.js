@@ -2,38 +2,20 @@ const mongoose = require("mongoose");
 
 const offerSchema = new mongoose.Schema(
   {
-    fromUser: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    toUser: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    exchangeType: {
-      type: String,
-      enum: ["Item", "Service", "Cash"],
-      required: true,
-    },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     itemOffered: { type: mongoose.Schema.Types.ObjectId, ref: "Item" },
     serviceOffered: { type: mongoose.Schema.Types.ObjectId, ref: "Service" },
-    cashAmount: { type: Number },
+    cashOffered: { type: Number, default: 0 },
+    counterOffer: { type: mongoose.Schema.Types.ObjectId, ref: "Offer" }, // Link to counteroffer
+    offerValidity: { type: Date, required: true }, // Expiry of the offer
     status: {
       type: String,
-      enum: ["Pending", "Accepted", "Rejected", "Completed"],
-      default: "Pending",
-    },
-    isCompletedBySender: { type: Boolean, default: false }, // Marked as complete by sender
-    isCompletedByReceiver: { type: Boolean, default: false }, // Marked as complete by receiver
-    review: {
-      text: { type: String },
-      rating: { type: Number, min: 1, max: 5 },
-      imageOrVideo: [{ type: String }], // URLs to images/videos
+      enum: ["pending", "accepted", "rejected"],
+      default: "pending",
     },
   },
-  { timestamps: true } // Tracks when offer was created/updated
+  { timestamps: true }
 );
 
-module.exports = mongoose.model("Offer", offerSchema);
+const Offer = mongoose.model("Offer", offerSchema);
+module.exports = Offer;
