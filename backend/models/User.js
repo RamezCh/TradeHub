@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
         rating: { type: Number, min: 1, max: 5, default: 0 },
       },
     },
-    role: { type: String, enum: ["user", "admin"], default: "user" },
+    isAdmin: { type: Boolean, default: false },
     sellerStatus: { type: Boolean, default: false }, // Become a seller flag
     myList: [
       {
