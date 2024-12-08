@@ -15,9 +15,7 @@ export const createListing = async (req, res) => {
     const imageUrls = [];
     if (req.files && req.files.images) {
       for (const file of req.files.images) {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: "tradehub/listings",
-        });
+        const result = await cloudinary.uploader.upload(file);
         imageUrls.push(result.secure_url);
       }
     }
