@@ -1,17 +1,61 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const listingSchema = new mongoose.Schema(
   {
-    item: { type: mongoose.Schema.Types.ObjectId, ref: "Item", required: true },
-    expectedExchange: {
-      type: String,
-      enum: ["Cash", "Service", "Item"],
+    ownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Reference to the User model
       required: true,
     },
-    acceptsAlternatives: { type: Boolean, default: false }, // Accept services/items
-    isActive: { type: Boolean, default: true },
+    type: {
+      type: String,
+      enum: ["item", "service"],
+      required: true,
+    },
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+      maxlength: [100, "Title cannot exceed 100 characters"],
+    },
+    description: {
+      type: String,
+      required: [true, "Description is required"],
+      maxlength: [1000, "Description cannot exceed 1000 characters"],
+    },
+    images: {
+      type: [String], // Array of image URLs
+      validate: {
+        validator: function (arr) {
+          return arr.length > 0; // Ensure at least one image is provided
+        },
+        message: "At least one image is required",
+      },
+    },
+    conditions: {
+      type: String,
+      enum: ["New", "Used"],
+      required: true,
+    },
+    location: {
+      type: String,
+      required: true,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["available", "traded"],
+      default: "available",
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // Automatically adds createdAt and updatedAt fields
+  }
 );
 
-module.exports = mongoose.model("Listing", listingSchema);
+const Listing = mongoose.model("Listing", listingSchema);
+
+export default Listing;

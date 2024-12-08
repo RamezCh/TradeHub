@@ -1,9 +1,10 @@
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
+import jwt from "jsonwebtoken";
 
 // models
-import Notification from "../models/notification.model.js";
-import User from "../models/user.model.js";
+import Notification from "../models/Notification.js";
+import User from "../models/User.js";
 
 export const getUserProfile = async (req, res) => {
   const { username } = req.params;
@@ -17,85 +18,123 @@ export const getUserProfile = async (req, res) => {
     console.log("Error in getUserProfile: ", error.message);
     res.status(500).json({ error: error.message });
   }
-};
+}; // tested, works
 
-export const followUnfollowUser = async (req, res) => {
+export const addToMyList = async (req, res) => {
+  const { providerId } = req.body; // Extract providerId from request body
+  const userId = req.user._id; // Get current user ID from auth middleware
+
   try {
-    const { id } = req.params;
-    const userToModify = await User.findById(id);
-    const currentUser = await User.findById(req.user._id);
+    // Fetch the current user and the provider
+    const user = await User.findById(userId);
+    const provider = await User.findById(providerId);
 
-    if (id === req.user._id.toString()) {
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!provider)
+      return res.status(404).json({ message: "Provider not found" });
+
+    // Check if the provider is already in the user's myList
+    const isAlreadyAdded = user.myList.some(
+      (item) => item.providerId.toString() === providerId
+    );
+
+    if (isAlreadyAdded) {
       return res
         .status(400)
-        .json({ error: "You can't follow/unfollow yourself" });
+        .json({ message: "Provider is already in your favorites" });
     }
 
-    if (!userToModify || !currentUser)
-      return res.status(400).json({ error: "User not found" });
+    // Add the provider to myList
+    user.myList.push({ providerId });
+    await user.save();
 
-    const isFollowing = currentUser.following.includes(id);
+    // Create a notification for the addition
+    const notification = new Notification({
+      user: providerId, // The provider gets notified
+      message: `${user.firstName} ${user.lastName} added you to their favorites.`,
+      type: "system_update", // Specify the notification type
+    });
+    await notification.save();
 
-    if (isFollowing) {
-      // Unfollow the user
-      await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
-      await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
-
-      res.status(200).json({ message: "User unfollowed successfully" });
-    } else {
-      // Follow the user
-      await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
-      await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
-      // Send notification to the user
-      const newNotification = new Notification({
-        type: "follow",
-        from: req.user._id,
-        to: userToModify._id,
-      });
-
-      await newNotification.save();
-
-      res.status(200).json({ message: "User followed successfully" });
-    }
+    res
+      .status(200)
+      .json({ message: "Provider added to your favorites successfully" });
   } catch (error) {
-    console.log("Error in followUnfollowUser: ", error.message);
+    console.error("Error in addToMyList: ", error.message);
     res.status(500).json({ error: error.message });
   }
 };
 
-export const getSuggestedUsers = async (req, res) => {
+export const removeFromMyList = async (req, res) => {
+  const { providerId } = req.body; // Extract providerId from request body
+  const userId = req.user._id; // Get current user ID from auth middleware
+
   try {
-    const userId = req.user._id;
+    // Fetch the current user and the provider
+    const user = await User.findById(userId);
+    const provider = await User.findById(providerId);
 
-    const usersFollowedByMe = await User.findById(userId).select("following");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!provider)
+      return res.status(404).json({ message: "Provider not found" });
 
-    const users = await User.aggregate([
-      {
-        $match: {
-          _id: { $ne: userId },
-        },
-      },
-      { $sample: { size: 10 } },
-    ]);
-
-    // 1,2,3,4,5,6,
-    const filteredUsers = users.filter(
-      (user) => !usersFollowedByMe.following.includes(user._id)
+    // Check if the provider exists in myList
+    const initialLength = user.myList.length;
+    user.myList = user.myList.filter(
+      (item) => item.providerId.toString() !== providerId
     );
-    const suggestedUsers = filteredUsers.slice(0, 4);
 
-    suggestedUsers.forEach((user) => (user.password = null));
+    if (initialLength === user.myList.length) {
+      return res
+        .status(404)
+        .json({ message: "Provider not found in your favorites" });
+    }
 
-    res.status(200).json(suggestedUsers);
+    // Save the updated user document
+    await user.save();
+
+    // No Notification, keep things stealthy lol
+
+    res
+      .status(200)
+      .json({ message: "Provider removed from your favorites successfully" });
   } catch (error) {
-    console.log("Error in getSuggestedUsers: ", error.message);
+    console.error("Error in removeFromMyList: ", error.message);
     res.status(500).json({ error: error.message });
   }
 };
+
+export const getMyList = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const user = await User.findById(userId).select("myList");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Check if empty
+    if (user?.myList == undefined) {
+      return res
+        .status(404)
+        .json({ message: "Favorite Providers list is empty" });
+    }
+
+    res.status(200).json(user.myList);
+  } catch (error) {
+    console.error("Error in getMyList: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+}; // Tested on empty list, works. Test again on full list
 
 export const updateUser = async (req, res) => {
-  const { fullName, email, username, currentPassword, newPassword, bio, link } =
-    req.body;
+  const {
+    firstName,
+    lastName,
+    email,
+    username,
+    currentPassword,
+    newPassword,
+    bio,
+  } = req.body;
   let { profileImg, coverImg } = req.body;
 
   const userId = req.user._id;
@@ -108,11 +147,9 @@ export const updateUser = async (req, res) => {
       (!newPassword && currentPassword) ||
       (!currentPassword && newPassword)
     ) {
-      return res
-        .status(400)
-        .json({
-          error: "Please provide both current password and new password",
-        });
+      return res.status(400).json({
+        error: "Please provide both current password and new password",
+      });
     }
 
     if (currentPassword && newPassword) {
@@ -125,7 +162,7 @@ export const updateUser = async (req, res) => {
           .json({ error: "Password must be at least 6 characters long" });
       }
 
-      const salt = await bcrypt.genSalt(10);
+      const salt = await bcrypt.genSalt(12);
       user.password = await bcrypt.hash(newPassword, salt);
     }
 
@@ -152,11 +189,11 @@ export const updateUser = async (req, res) => {
       coverImg = uploadedResponse.secure_url;
     }
 
-    user.fullName = fullName || user.fullName;
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
     user.email = email || user.email;
     user.username = username || user.username;
     user.bio = bio || user.bio;
-    user.link = link || user.link;
     user.profileImg = profileImg || user.profileImg;
     user.coverImg = coverImg || user.coverImg;
 
@@ -170,4 +207,30 @@ export const updateUser = async (req, res) => {
     console.log("Error in updateUser: ", error.message);
     res.status(500).json({ error: error.message });
   }
-};
+}; // Tested, works, modify for other data from User Model later on
+
+export const updatePaymentMethod = async (req, res) => {
+  const { paymentMethod } = req.body;
+  const userId = req.user._id;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.defaultPaymentMethod === paymentMethod) {
+      return res
+        .status(400)
+        .json({ message: "This payment method is already set as default" });
+    }
+
+    user.defaultPaymentMethod = paymentMethod;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Default payment method updated successfully" });
+  } catch (error) {
+    console.error("Error in updatePaymentMethod: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+}; // leave for end
