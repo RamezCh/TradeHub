@@ -1,7 +1,5 @@
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
-import jwt from "jsonwebtoken";
-
 // models
 import Notification from "../models/Notification.js";
 import User from "../models/User.js";
@@ -21,9 +19,9 @@ export const getUserProfile = async (req, res) => {
 }; // tested, works
 
 export const addToMyList = async (req, res) => {
-  const { providerId } = req.body; // Extract providerId from request body
-  const userId = req.user._id; // Get current user ID from auth middleware
-
+  const { providerId } = req.params;
+  const { type } = req.body;
+  const userId = req.user._id;
   try {
     // Fetch the current user and the provider
     const user = await User.findById(userId);
@@ -33,9 +31,14 @@ export const addToMyList = async (req, res) => {
     if (!provider)
       return res.status(404).json({ message: "Provider not found" });
 
-    // Check if the provider is already in the user's myList
-    const isAlreadyAdded = user.myList.some(
-      (item) => item.providerId.toString() === providerId
+    if (user._id.toString() === provider._id.toString()) {
+      return res
+        .status(400)
+        .json({ message: "You can't add yourself to your favorites" });
+    }
+    // Check if the provider is already in the user's favProviders
+    const isAlreadyAdded = user.favProviders.some(
+      (item) => item._id.toString() === providerId
     );
 
     if (isAlreadyAdded) {
@@ -44,8 +47,8 @@ export const addToMyList = async (req, res) => {
         .json({ message: "Provider is already in your favorites" });
     }
 
-    // Add the provider to myList
-    user.myList.push({ providerId });
+    // Add the provider to favProviders
+    user.favProviders.push({ _id: provider._id, type });
     await user.save();
 
     // Create a notification for the addition
@@ -66,9 +69,8 @@ export const addToMyList = async (req, res) => {
 };
 
 export const removeFromMyList = async (req, res) => {
-  const { providerId } = req.body; // Extract providerId from request body
-  const userId = req.user._id; // Get current user ID from auth middleware
-
+  const { providerId } = req.params;
+  const userId = req.user._id;
   try {
     // Fetch the current user and the provider
     const user = await User.findById(userId);
@@ -79,12 +81,12 @@ export const removeFromMyList = async (req, res) => {
       return res.status(404).json({ message: "Provider not found" });
 
     // Check if the provider exists in myList
-    const initialLength = user.myList.length;
-    user.myList = user.myList.filter(
-      (item) => item.providerId.toString() !== providerId
+    const initialLength = user.favProviders.length;
+    user.favProviders = user.favProviders.filter(
+      (item) => item._id.toString() !== providerId
     );
 
-    if (initialLength === user.myList.length) {
+    if (initialLength === user.favProviders.length) {
       return res
         .status(404)
         .json({ message: "Provider not found in your favorites" });
@@ -103,27 +105,6 @@ export const removeFromMyList = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-export const getMyList = async (req, res) => {
-  const userId = req.user._id;
-
-  try {
-    const user = await User.findById(userId).select("myList");
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // Check if empty
-    if (user?.myList == undefined) {
-      return res
-        .status(404)
-        .json({ message: "Favorite Providers list is empty" });
-    }
-
-    res.status(200).json(user.myList);
-  } catch (error) {
-    console.error("Error in getMyList: ", error.message);
-    res.status(500).json({ error: error.message });
-  }
-}; // Tested on empty list, works. Test again on full list
 
 export const updateUser = async (req, res) => {
   const {

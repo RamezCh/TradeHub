@@ -1,8 +1,9 @@
 import express from "express";
+import { protectRoute } from "../middleware/authMiddleware.js";
 import {
   createListing,
   editListing,
-  setListingTraded,
+  toggleListingStatus,
   deleteListing,
   getAllListings,
 } from "../controllers/listing.controller.js";
@@ -10,10 +11,10 @@ import {
 const router = express.Router();
 
 // Define routes
-router.post("/listings", createListing);
-router.put("/listings/:id", editListing);
-router.patch("/listings/:id/traded", setListingTraded);
-router.delete("/listings/:id", deleteListing);
-router.get("/listings", getAllListings);
+router.post("/create", protectRoute, createListing); // does functionality, tested for one image, create multiple later on
+router.put("/edit/:id", protectRoute, editListing); // does functionality, tested for one image, create multiple later on
+router.patch("/toggle-status/:id", protectRoute, toggleListingStatus); // works 100% correct
+router.delete("/delete/:id", protectRoute, deleteListing); // works 100% correct
+router.get("/", getAllListings); // works 100% correct
 
 export default router;

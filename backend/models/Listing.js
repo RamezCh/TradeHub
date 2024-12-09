@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const listingSchema = new mongoose.Schema(
   {
-    ownerId: {
+    providerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // Reference to the User model
       required: true,
@@ -32,17 +32,41 @@ const listingSchema = new mongoose.Schema(
         message: "At least one image is required",
       },
     },
-    conditions: {
+    condition: {
       type: String,
       enum: ["New", "Used"],
       required: true,
     },
     location: {
       type: String,
+      enum: [
+        "Saida",
+        "Beirut",
+        "Tripoli",
+        "Zahle",
+        "Jounieh",
+        "Tyre",
+        "Batroun",
+        "Byblos",
+        "Baalbek",
+      ],
       required: true,
     },
     category: {
       type: String,
+      enum: [
+        "Vechiles",
+        "Electronics",
+        "Fashion",
+        "Home",
+        "Books",
+        "Toys",
+        "Beauty",
+        "Sports",
+        "Suppliments",
+        "Medicine",
+        "Other",
+      ],
       required: true,
     },
     status: {

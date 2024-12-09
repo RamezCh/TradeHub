@@ -30,8 +30,8 @@ const userSchema = new mongoose.Schema(
     ],
     favProviders: [
       {
-        providerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Other users followed by this user
-        type: { type: String, enum: ["Item", "Service"], required: true }, // Type of provider (Item/Service)
+        _id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        type: { type: String, enum: ["Item", "Service"], required: true },
       },
     ],
     defaultPaymentMethod: {
@@ -55,12 +55,6 @@ userSchema.pre("save", function (next) {
       )
     );
   }
-
-  this.favProviders.forEach((provider) => {
-    if (provider.providerId.toString() === this._id.toString()) {
-      return next(new Error("You cannot follow your own services/items."));
-    }
-  });
 
   next();
 });

@@ -4,30 +4,24 @@ import { v2 as cloudinary } from "cloudinary";
 // Create a new listing
 export const createListing = async (req, res) => {
   try {
-    const { type, title, description, conditions, location, category } =
+    const { type, title, description, condition, location, category } =
       req.body;
 
-    const userId = req.user._id;
+    let { images } = req.body;
+    const providerId = req.user._id;
 
-    const ownerId = userId;
-
-    // Upload images to Cloudinary
-    const imageUrls = [];
-    if (req.files && req.files.images) {
-      for (const file of req.files.images) {
-        const result = await cloudinary.uploader.upload(file);
-        imageUrls.push(result.secure_url);
-      }
-    }
+    // Upload images to cloudinary, right now only one image test
+    images = await cloudinary.uploader.upload(images);
+    images = images.secure_url;
 
     // Create listing
     const listing = new Listing({
-      ownerId,
+      providerId,
       type,
       title,
       description,
-      images: imageUrls,
-      conditions,
+      images,
+      condition,
       location,
       category,
     });
@@ -35,9 +29,10 @@ export const createListing = async (req, res) => {
     await listing.save();
     res.status(201).json({ message: "Listing created successfully", listing });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating listing", error: error.message });
+    res.status(500).json({
+      message: "Error creating listing",
+      error: error.message,
+    });
   }
 };
 
@@ -45,19 +40,17 @@ export const createListing = async (req, res) => {
 export const editListing = async (req, res) => {
   try {
     const { id } = req.params;
+    let { images } = req.body;
     const updates = req.body;
 
     // Check if images are updated
-    if (req.files && req.files.images) {
-      const imageUrls = [];
-      for (const file of req.files.images) {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: "tradehub/listings",
-        });
-        imageUrls.push(result.secure_url);
-      }
-      updates.images = imageUrls;
+    if (images) {
+      // Upload images to cloudinary, right now only one image test
+      images = await cloudinary.uploader.upload(images);
+      images = images.secure_url;
+      updates.images = images;
     }
+    // Do later, for now only one image
 
     const updatedListing = await Listing.findByIdAndUpdate(id, updates, {
       new: true,
@@ -78,25 +71,26 @@ export const editListing = async (req, res) => {
   }
 };
 
-// Set listing as traded
-export const setListingTraded = async (req, res) => {
+// Toggle Listing Status
+export const toggleListingStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const listing = await Listing.findByIdAndUpdate(
-      id,
-      { status: "traded" },
-      { new: true }
-    );
+    const listing = await Listing.findById(id);
 
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });
     }
 
-    res.status(200).json({ message: "Listing marked as traded", listing });
+    listing.status = listing.status === "available" ? "traded" : "available";
+    await listing.save();
+
+    res
+      .status(200)
+      .json({ message: `Listing marked as ${listing.status}`, listing });
   } catch (error) {
     res.status(500).json({
-      message: "Error marking listing as traded",
+      message: `Error marking listing as ${listing.status}`,
       error: error.message,
     });
   }
@@ -127,18 +121,16 @@ export const deleteListing = async (req, res) => {
   }
 };
 
-// Get all listings (optional feature)
+// Get all listings
 export const getAllListings = async (req, res) => {
   try {
-    const { type, category, location, status } = req.query;
+    const listings = await Listing.find({ status: "available" }).sort({
+      createdAt: -1,
+    });
 
-    const filters = {};
-    if (type) filters.type = type;
-    if (category) filters.category = category;
-    if (location) filters.location = location;
-    if (status) filters.status = status;
-
-    const listings = await Listing.find(filters);
+    if (listings.length === 0) {
+      return res.status(404).json({ message: "No listings found" });
+    }
 
     res.status(200).json({ listings });
   } catch (error) {
