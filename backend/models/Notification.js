@@ -8,13 +8,14 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       enum: [
         "payment_reminder",
-        "system_update",
-        "chat_alert",
+        "pending_offer",
+        "maintenance",
+        "new_message",
         "order_complete",
-        "dispute",
       ],
       required: true,
     },
+    link: { type: String, required: true },
     readStatus: { type: Boolean, default: false },
   },
   { timestamps: true }

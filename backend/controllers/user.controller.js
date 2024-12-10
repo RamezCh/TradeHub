@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 // models
-import Notification from "../models/Notification.js";
 import User from "../models/User.js";
 
 export const getUserProfile = async (req, res) => {
@@ -50,14 +49,6 @@ export const addToMyList = async (req, res) => {
     // Add the provider to favProviders
     user.favProviders.push({ _id: provider._id, type });
     await user.save();
-
-    // Create a notification for the addition
-    const notification = new Notification({
-      user: providerId, // The provider gets notified
-      message: `${user.firstName} ${user.lastName} added you to their favorites.`,
-      type: "system_update", // Specify the notification type
-    });
-    await notification.save();
 
     res
       .status(200)
@@ -189,29 +180,3 @@ export const updateUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }; // Tested, works, modify for other data from User Model later on
-
-export const updatePaymentMethod = async (req, res) => {
-  const { paymentMethod } = req.body;
-  const userId = req.user._id;
-
-  try {
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    if (user.defaultPaymentMethod === paymentMethod) {
-      return res
-        .status(400)
-        .json({ message: "This payment method is already set as default" });
-    }
-
-    user.defaultPaymentMethod = paymentMethod;
-    await user.save();
-
-    res
-      .status(200)
-      .json({ message: "Default payment method updated successfully" });
-  } catch (error) {
-    console.error("Error in updatePaymentMethod: ", error.message);
-    res.status(500).json({ error: error.message });
-  }
-}; // leave for end

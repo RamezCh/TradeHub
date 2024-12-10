@@ -7,6 +7,9 @@ import { v2 as cloudinary } from "cloudinary";
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import listingRoutes from "./routes/listing.route.js";
+import notificationRoutes from "./routes/notification.route.js";
+import offerRoutes from "./routes/offer.route.js";
+import orderRoutes from "./routes/order.route.js";
 
 import connectMongoDB from "./db/connectMongoDB.js";
 
@@ -31,6 +34,9 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/listings", listingRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/offers", offerRoutes);
+app.use("/api/orders", orderRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));

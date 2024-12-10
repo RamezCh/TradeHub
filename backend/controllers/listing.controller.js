@@ -6,13 +6,20 @@ export const createListing = async (req, res) => {
   try {
     const { type, title, description, condition, location, category } =
       req.body;
-
-    let { images } = req.body;
     const providerId = req.user._id;
+    let { images } = req.body; // Expecting an array of Base64 strings
 
-    // Upload images to cloudinary, right now only one image test
-    images = await cloudinary.uploader.upload(images);
-    images = images.secure_url;
+    if (!Array.isArray(images)) {
+      return res.status(400).json({ message: "Images should be an array" });
+    }
+
+    // Upload each image to Cloudinary
+    const uploadedImages = await Promise.all(
+      images.map(async (image) => {
+        const result = await cloudinary.uploader.upload(image);
+        return result.secure_url; // Return the Cloudinary URL
+      })
+    );
 
     // Create listing
     const listing = new Listing({
@@ -20,13 +27,14 @@ export const createListing = async (req, res) => {
       type,
       title,
       description,
-      images,
+      images: uploadedImages, // Store all uploaded image URLs
       condition,
       location,
       category,
     });
 
     await listing.save();
+
     res.status(201).json({ message: "Listing created successfully", listing });
   } catch (error) {
     res.status(500).json({
@@ -40,18 +48,22 @@ export const createListing = async (req, res) => {
 export const editListing = async (req, res) => {
   try {
     const { id } = req.params;
-    let { images } = req.body;
+    let { images } = req.body; // Images array in req.body
     const updates = req.body;
 
     // Check if images are updated
-    if (images) {
-      // Upload images to cloudinary, right now only one image test
-      images = await cloudinary.uploader.upload(images);
-      images = images.secure_url;
-      updates.images = images;
+    if (images && Array.isArray(images)) {
+      // Upload each image to Cloudinary
+      const uploadedImages = await Promise.all(
+        images.map(async (image) => {
+          const result = await cloudinary.uploader.upload(image);
+          return result.secure_url; // Return the secure URL
+        })
+      );
+      updates.images = uploadedImages; // Update the images field
     }
-    // Do later, for now only one image
 
+    // Update the listing with new data
     const updatedListing = await Listing.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
