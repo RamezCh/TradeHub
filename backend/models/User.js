@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema(
     favProviders: [
       {
         _id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        type: { type: String, enum: ["Item", "Service"], required: true },
+        type: { type: String, enum: ["item", "service"], required: true },
       },
     ],
     defaultPaymentMethod: {

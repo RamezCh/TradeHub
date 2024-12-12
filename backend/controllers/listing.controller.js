@@ -7,6 +7,7 @@ export const createListing = async (req, res) => {
     const { type, title, description, condition, location, category } =
       req.body;
     const providerId = req.user._id;
+    const matchTypeEnum = type.toLowerCase();
     let { images } = req.body; // Expecting an array of Base64 strings
 
     if (!Array.isArray(images)) {
@@ -24,7 +25,7 @@ export const createListing = async (req, res) => {
     // Create listing
     const listing = new Listing({
       providerId,
-      type,
+      type: matchTypeEnum,
       title,
       description,
       images: uploadedImages, // Store all uploaded image URLs
@@ -50,6 +51,9 @@ export const editListing = async (req, res) => {
     const { id } = req.params;
     let { images } = req.body; // Images array in req.body
     const updates = req.body;
+    if (updates?.type) {
+      updates.type = updates.type.toLowerCase();
+    }
 
     // Check if images are updated
     if (images && Array.isArray(images)) {
@@ -139,6 +143,44 @@ export const getAllListings = async (req, res) => {
     const listings = await Listing.find({ status: "available" }).sort({
       createdAt: -1,
     });
+
+    if (listings.length === 0) {
+      return res.status(404).json({ message: "No listings found" });
+    }
+
+    res.status(200).json({ listings });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching listings", error: error.message });
+  }
+};
+
+// Get a single listing
+export const getListing = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const listing = await Listing.findById(id);
+
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    res.status(200).json({ listing });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching listing", error: error.message });
+  }
+};
+
+// Get listings by provider
+export const getListingsByProvider = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+
+    const listings = await Listing.find({ providerId }).sort({ createdAt: -1 });
 
     if (listings.length === 0) {
       return res.status(404).json({ message: "No listings found" });

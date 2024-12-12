@@ -5,7 +5,8 @@ import Chat from "../models/Chat.js";
 import { createNotification } from "../lib/utils/createNotification.js";
 
 export const createOffer = async (req, res) => {
-  const { listingId, toUserId, offerType, offerDetails } = req.body;
+  const { listingId, toUserId, offerDetails } = req.body;
+  const offerType = req.body.offerType.toLowerCase();
   const fromUserId = req.user._id;
   try {
     // Check if the listing exists

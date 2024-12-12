@@ -19,7 +19,7 @@ export const getUserProfile = async (req, res) => {
 
 export const addToMyList = async (req, res) => {
   const { providerId } = req.params;
-  const { type } = req.body;
+  const type = req.body.type.toLowerCase();
   const userId = req.user._id;
   try {
     // Fetch the current user and the provider
