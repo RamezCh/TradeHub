@@ -1,21 +1,11 @@
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
-import { v2 as cloudinary } from "cloudinary";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 
 export const signup = async (req, res) => {
   try {
-    const {
-      firstName,
-      lastName,
-      username,
-      email,
-      password,
-      bio,
-      defaultPaymentMethod,
-    } = req.body;
-
-    let { profileImg, coverImg } = req.body;
+    const { firstName, lastName, username, email, password, sellerStatus } =
+      req.body;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -41,26 +31,13 @@ export const signup = async (req, res) => {
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (profileImg) {
-      const result = await cloudinary.uploader.upload(profileImg);
-      profileImg = result.secure_url;
-    }
-
-    if (coverImg) {
-      const result = await cloudinary.uploader.upload(coverImg);
-      coverImg = result.secure_url;
-    }
-
     const newUser = new User({
       firstName,
       lastName,
       username,
       email,
       password: hashedPassword,
-      bio: bio || "I am.. I sell.. I offer.. I am searching for..",
-      profileImg: profileImg || "default-profile-image.png",
-      coverImg: coverImg || "default-cover-image.png",
-      defaultPaymentMethod: defaultPaymentMethod || "PayPal",
+      sellerStatus,
     });
 
     if (newUser) {
@@ -73,15 +50,7 @@ export const signup = async (req, res) => {
         lastName: newUser.lastName,
         username: newUser.username,
         email: newUser.email,
-        profileImg: newUser.profileImg,
-        coverImg: newUser.coverImg,
-        bio: newUser.bio,
-        isAdmin: newUser.isAdmin,
         sellerStatus: newUser.sellerStatus,
-        defaultPaymentMethod: newUser.defaultPaymentMethod,
-        services: newUser.services,
-        items: newUser.items,
-        favProviders: newUser.favProviders,
       });
     } else {
       res.status(400).json({ error: "Invalid user data" });
@@ -94,15 +63,15 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
     const isPasswordCorrect = await bcrypt.compare(
       password,
       user?.password || ""
     );
 
     if (!user || !isPasswordCorrect) {
-      return res.status(400).json({ error: "Invalid username or password" });
+      return res.status(400).json({ error: "Invalid email or password" });
     }
 
     generateTokenAndSetCookie(user._id, res);
@@ -113,15 +82,8 @@ export const login = async (req, res) => {
       lastName: user.lastName,
       username: user.username,
       email: user.email,
-      profileImg: user.profileImg,
-      coverImg: user.coverImg,
-      bio: user.bio,
       isAdmin: user.isAdmin,
       sellerStatus: user.sellerStatus,
-      defaultPaymentMethod: user.defaultPaymentMethod,
-      services: user.services,
-      items: user.items,
-      favProviders: user.favProviders,
     });
   } catch (error) {
     console.error("Error in login controller:", error.message);
@@ -139,12 +101,16 @@ export const logout = async (req, res) => {
   }
 };
 
-export const getMe = async (req, res) => {
+export const checkAuth = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-password");
-    res.status(200).json(user);
+    const user = await User.findById(req.userId).select("-password");
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
   } catch (error) {
-    console.error("Error in getMe controller:", error.message);
+    console.error("Error in checkAuth controller:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

@@ -1,4 +1,5 @@
 import Chat from "../models/Chat.js";
+import { v2 as cloudinary } from "cloudinary";
 
 export const createChat = async (req, res) => {
   try {
@@ -52,6 +53,41 @@ export const getChat = async (req, res) => {
     res.status(200).json(chat);
   } catch (error) {
     console.error("Error in getChat controller:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const sendMessage = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { chatId } = req.params;
+    const { content } = req.body;
+    let imageUrl;
+
+    if (image) {
+      const uploadResponse = await cloudinary.uploader.upload(image);
+      imageUrl = uploadResponse.secure_url;
+    }
+
+    const chat = await Chat.findById(chatId);
+    if (
+      userId.toString() !== chat.participants[0].toString() &&
+      userId.toString() !== chat.participants[1].toString()
+    ) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    const newMessage = {
+      senderId: userId,
+      content,
+      image: imageUrl,
+    };
+
+    chat.messages.push(newMessage);
+    const savedChat = await chat.save();
+    res.status(201).json(savedChat);
+  } catch (error) {
+    console.error("Error in sendMessage controller:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
