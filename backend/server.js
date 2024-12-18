@@ -11,11 +11,12 @@ import listingRoutes from "./routes/listing.route.js";
 import notificationRoutes from "./routes/notification.route.js";
 import offerRoutes from "./routes/offer.route.js";
 import orderRoutes from "./routes/order.route.js";
-import chatRoutes from "./routes/chat.route.js";
+import messageRoutes from "./routes/message.route.js";
 import itemRoutes from "./routes/item.route.js";
 import serviceRoutes from "./routes/service.route.js";
 
 import connectMongoDB from "./db/connectMongoDB.js";
+import { app, server } from "./lib/socket.js";
 
 dotenv.config();
 
@@ -25,7 +26,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const app = express();
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
@@ -47,7 +47,7 @@ app.use("/api/listings", listingRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/offers", offerRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/chats", chatRoutes);
+app.use("/api/messages", messageRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/services", serviceRoutes);
 
@@ -59,7 +59,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   connectMongoDB();
 });

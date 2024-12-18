@@ -1,8 +1,8 @@
 import Offer from "../models/Offer.js";
 import Listing from "../models/Listing.js";
 import User from "../models/User.js";
-import Chat from "../models/Chat.js";
-import { createNotification } from "../lib/utils/createNotification.js";
+import Message from "../models/Message.js";
+import { createNotification } from "../lib/createNotification.js";
 
 export const createOffer = async (req, res) => {
   const { listingId, toUserId, offerDetails } = req.body;
@@ -48,19 +48,15 @@ export const createOffer = async (req, res) => {
     }
 
     // Create a chat for the offer
-    const chat = new Chat({
-      participants: [fromUserId, toUserId],
-    });
-    await chat.save();
-
-    // Add initial message
-    chat.messages.push({
+    const message = new Message({
       senderId: fromUserId,
-      content:
+      receiverId: toUserId,
+      text:
         "Hello there! I am interested in your listing with the title " +
         listing.title,
+      image: listing.images[0],
     });
-    await chat.save();
+    await message.save();
 
     // Create the offer
     const offer = new Offer({
@@ -69,7 +65,6 @@ export const createOffer = async (req, res) => {
       toUserId,
       offerType,
       offerDetails,
-      chatId: chat._id,
     });
     await offer.save();
 

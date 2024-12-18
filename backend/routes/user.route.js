@@ -19,6 +19,6 @@ router.post("/myList/add/:providerId", protectRoute, addToMyList); // works 100%
 router.delete("/myList/remove/:providerId", protectRoute, removeFromMyList); // works 100%
 
 // Update user profile
-router.post("/update", protectRoute, updateUser); // works
+router.put("/update", protectRoute, updateUser); // works
 
 export default router;

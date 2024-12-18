@@ -1,4 +1,4 @@
-import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
+import { generateTokenAndSetCookie } from "../lib/generateToken.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 
@@ -103,7 +103,7 @@ export const logout = async (req, res) => {
 
 export const checkAuth = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select("-password");
+    const user = await User.findById(req.user._id).select("-password");
     if (user) {
       res.status(200).json(user);
     } else {

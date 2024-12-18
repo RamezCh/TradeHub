@@ -28,7 +28,6 @@ const offerSchema = new mongoose.Schema(
       enum: ["pending", "accepted", "rejected"],
       default: "pending",
     },
-    chatId: { type: mongoose.Schema.Types.ObjectId, ref: "Chat" },
   },
   { timestamps: true }
 );
