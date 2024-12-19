@@ -8,9 +8,9 @@ const HomePage = () => {
       {/* Encourage the user to sign in or sign up and have search bar to search for products */}
       <IntroSection />
       {/* Popular Services */}
-      <PopularSection />
+      <PopularSection type="service" />
       {/* Popular Items */}
-      <PopularSection />
+      <PopularSection type="item" />
       {/* Sign Up Now */}
       <SignUpNow />
       {/* Footer */}

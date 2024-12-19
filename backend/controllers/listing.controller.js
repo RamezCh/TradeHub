@@ -140,19 +140,43 @@ export const deleteListing = async (req, res) => {
 // Get all listings
 export const getAllListings = async (req, res) => {
   try {
-    const listings = await Listing.find({ status: "available" }).sort({
-      createdAt: -1,
-    });
+    const { page = 1, limit = 5, type = "all" } = req.query;
+    const skip = (page - 1) * limit;
+    let correctedType = type.toLowerCase();
+    correctedType = correctedType !== "all" ? correctedType : "all";
+    correctedType = correctedType.startsWith("ite") ? "item" : correctedType;
+    correctedType = correctedType.startsWith("serv")
+      ? "service"
+      : correctedType;
+    // Filter by type if specified, else fetch all types
+    const filter =
+      type !== "all"
+        ? { type: correctedType, status: "available" }
+        : { status: "available" };
+
+    // Fetch listings with pagination and type filtering
+    const listings = await Listing.find(filter)
+      .sort({ createdAt: -1 }) // Sort by creation date
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const totalListings = await Listing.countDocuments(filter);
 
     if (listings.length === 0) {
-      return res.status(404).json({ message: "No listings found" });
+      return res.status(200).json({ message: "No listings found" });
     }
 
-    res.status(200).json({ listings });
+    const totalPages = Math.ceil(totalListings / limit);
+
+    res.status(200).json({
+      listings,
+      totalListings,
+      totalPages,
+    });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error fetching listings", error: error.message });
+      .json({ message: "Error fetching services", error: error.message });
   }
 };
 
