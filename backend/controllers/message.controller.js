@@ -37,12 +37,14 @@ export const getMessages = async (req, res) => {
     });
 
     // Mark messages as read
-    messages.forEach(async (message) => {
-      if (message.receiverId.toString() === myId.toString()) {
-        message.read = true;
-        await message.save();
-      }
-    });
+    await Promise.all(
+      messages.map(async (message) => {
+        if (message.receiverId.toString() === myId.toString()) {
+          message.isRead = true;
+          await message.save();
+        }
+      })
+    );
 
     res.status(200).json(messages);
   } catch (error) {

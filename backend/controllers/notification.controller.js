@@ -46,6 +46,8 @@ export const markNotificationAsRead = async (req, res) => {
     const notificationId = req.params.id;
     const userId = req.user._id;
     const notification = await Notification.findById(notificationId);
+    console.log("notification", notification);
+    console.log("notificationId", notificationId);
 
     if (!notification) {
       return res.status(404).json({ error: "Notification not found" });

@@ -1,4 +1,5 @@
-import Navbar from "./components/Navbar";
+import Navbar from "./components/shared/Navbar";
+import LoggedInNavbar from "./components/shared/LoggedInNavbar";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
@@ -32,7 +33,7 @@ const App = () => {
 
   return (
     <div data-theme={theme}>
-      <Navbar />
+      {authUser == null ? <Navbar /> : <LoggedInNavbar />}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route
