@@ -3,17 +3,22 @@ import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
 export const useListingsStore = create((set) => ({
-  listings: [],
-  totalListings: 0,
-  totalPages: 0,
+  services: [],
+  items: [],
+  totalServices: 0,
+  totalItems: 0,
+  totalServicesPages: 0,
+  totalItemsPages: 0,
+  isLoadingItems: false,
+  isLoadingServices: false,
   page: 1,
   limit: 5,
-  type: "all", // Default to 'all' types
-  isLoadingListings: false,
   error: null,
 
-  fetchListings: async (page = 1, limit = 5, type = "all") => {
-    set({ isLoadingListings: true, page, limit, type });
+  fetchListings: async (page = 1, limit = 5, type) => {
+    type === "service"
+      ? set({ isLoadingServices: true, page, limit, type })
+      : set({ isLoadingItems: true, page, limit, type });
 
     try {
       // Make API request with pagination and type filtering
@@ -23,16 +28,24 @@ export const useListingsStore = create((set) => ({
 
       const data = response.data;
 
-      set({
-        listings: data.listings,
-        totalListings: data.totalListings,
-        totalPages: data.totalPages,
-      });
+      type === "service"
+        ? set({
+            services: data.listings,
+            totalServices: data.totalListings,
+            totalServicesPages: data.totalPages,
+          })
+        : set({
+            items: data.listings,
+            totalItems: data.totalListings,
+            totalItemsPages: data.totalPages,
+          });
     } catch (err) {
       set({ error: "Error fetching listings" });
       toast.error("Error fetching listings", err);
     } finally {
-      set({ isLoadingListings: false });
+      type === "service"
+        ? set({ isLoadingServices: false })
+        : set({ isLoadingItems: false });
     }
   },
 

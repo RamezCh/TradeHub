@@ -2,15 +2,30 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useListingsStore } from "../../store/useListingStore";
+import ItemCard from "../shared/ItemCard";
+import ItemCardSkeleton from "../skeletons/ItemCardSkeleton";
 
-const PopularSection = ({ type = "all" }) => {
+const PopularSection = ({ type }) => {
   const [startIndex, setStartIndex] = useState(0);
   const itemsPerPage = 5;
-  const { listings, totalListings, isLoadingListings, fetchListings } =
-    useListingsStore();
+
+  const {
+    services,
+    items,
+    totalServices,
+    totalItems,
+    isLoadingItems,
+    isLoadingServices,
+    fetchListings,
+  } = useListingsStore();
+
+  const isServiceType = type === "service";
+  const listings = isServiceType ? services : items;
+  const totalListings = isServiceType ? totalServices : totalItems;
+  const isLoadingListings = isServiceType ? isLoadingServices : isLoadingItems;
 
   useEffect(() => {
-    fetchListings(1, itemsPerPage, type); // Fetch listings based on type when the component mounts
+    fetchListings(1, itemsPerPage, type);
   }, [fetchListings, type]);
 
   const handleNext = () => {
@@ -35,16 +50,11 @@ const PopularSection = ({ type = "all" }) => {
     }),
   };
 
-  if (isLoadingListings) return <p>Loading...</p>; // Display loading state while fetching listings
-
-  // Check if there are no listings available
-  if (!listings || listings.length === 0) {
-    return <p>No {type} found.</p>; // Display a message when no listings are available
-  }
-
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">Popular {type}</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        {listings ? `Popular ${type}` : `No ${type} found.`}
+      </h1>
       <div className="flex items-center justify-center gap-4">
         <button
           className="btn btn-circle btn-outline"
@@ -68,16 +78,29 @@ const PopularSection = ({ type = "all" }) => {
             }}
             key={startIndex}
           >
-            {listings
-              .slice(startIndex, startIndex + itemsPerPage)
-              .map((item) => (
-                <div
-                  className="flex-shrink-0 w-1/5 bg-base-200 p-4 rounded-lg shadow-md text-center"
-                  key={item._id} // Ensure each item has a unique key
-                >
-                  {item.name}
-                </div>
-              ))}
+            {!isLoadingListings ? (
+              listings ? (
+                listings
+                  .slice(startIndex, startIndex + itemsPerPage)
+                  .map((item) => (
+                    <ItemCard
+                      key={item._id}
+                      itemId={item._id}
+                      title={item.title}
+                      description={item.description}
+                      image={item.images[0]}
+                      condition={item.condition}
+                      location={item.location}
+                      category={item.category}
+                      createdAt={item.createdAt}
+                    />
+                  ))
+              ) : (
+                <p className="w-full text-center">No Items Found</p>
+              )
+            ) : (
+              <ItemCardSkeleton />
+            )}
           </motion.div>
         </div>
         <button
