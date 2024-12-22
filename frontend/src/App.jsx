@@ -1,5 +1,6 @@
 import Navbar from "./components/shared/Navbar";
 import LoggedInNavbar from "./components/shared/LoggedInNavbar";
+import Footer from "./components/shared/Footer";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
@@ -51,6 +52,7 @@ const App = () => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/*" element={<ErrorPage />} />
       </Routes>
+      <Footer />
 
       <Toaster />
     </div>

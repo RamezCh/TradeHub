@@ -1,7 +1,6 @@
 import IntroSection from "../components/HomePage/IntroSection";
 import PopularSection from "../components/HomePage/PopularSection";
 import SignUpNow from "../components/HomePage/SignUpNow";
-import Footer from "../components/shared/Footer";
 const HomePage = () => {
   return (
     <div>
@@ -13,8 +12,6 @@ const HomePage = () => {
       <PopularSection type="item" />
       {/* Sign Up Now */}
       <SignUpNow />
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
