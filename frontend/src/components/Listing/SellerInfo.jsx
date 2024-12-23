@@ -13,21 +13,23 @@ const SellerInfo = ({
   });
 
   return (
-    <div className="mt-6 p-4 border rounded-lg">
-      <div className="chat-image avatar">
-        <div className="size-10 rounded-full border mr-2">
-          <img src={profileImg || "/avatar.png"} alt="profile pic" />
+    <div className="card bg-base-100 shadow-md">
+      <div className="card-body items-center text-center">
+        <div className="avatar mb-4">
+          <div className="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+            <img src={profileImg || "/avatar.png"} alt="Profile" />
+          </div>
         </div>
-        <h2 className="text-lg font-semibold">
+        <h2 className="card-title">
           {firstName} {lastName}
         </h2>
+        <p className="text-sm text-gray-500">Joined on {formattedDate}</p>
+        <Link to={`/inbox/${username}`} className="mt-4 w-full">
+          <button className="btn btn-primary btn-outline btn-sm w-full">
+            Chat with Seller
+          </button>
+        </Link>
       </div>
-      <p className="text-sm text-gray-500">Joined on {formattedDate}</p>
-      <Link to={`/inbox/${username}`}>
-        <button className="btn btn-primary btn-sm mt-4">
-          Chat with Seller
-        </button>
-      </Link>
     </div>
   );
 };
