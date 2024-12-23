@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 import NotificationDropdown from "../NotificationDropdown";
-import { LogOut, ChartCandlestick, Settings, User } from "lucide-react";
+import { LogOut, ChartCandlestick, Settings, User, Inbox } from "lucide-react";
 
 const LoggedInNavbar = () => {
   const { logout, authUser } = useAuthStore();
@@ -23,6 +23,11 @@ const LoggedInNavbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Settings */}
+            <Link to="/settings" className="btn btn-sm gap-2 transition-colors">
+              <Settings className="w-4 h-4" />
+            </Link>
+
             {/* Profile */}
             {authUser && (
               <Link to="/profile" className="btn btn-sm gap-2">
@@ -30,13 +35,13 @@ const LoggedInNavbar = () => {
               </Link>
             )}
 
+            {/* Inbox */}
+            <Link to="/inbox" className="btn btn-sm gap-2 transition-colors">
+              <Inbox className="w-4 h-4" />
+            </Link>
+
             {/* Notifications */}
             {authUser && <NotificationDropdown isAuthenticated={authUser} />}
-
-            {/* Settings */}
-            <Link to="/settings" className="btn btn-sm gap-2 transition-colors">
-              <Settings className="w-4 h-4" />
-            </Link>
 
             {/* Logout */}
             {authUser && (

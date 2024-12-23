@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Camera, Mail, User } from "lucide-react";
+import { Camera, Mail, User, Pencil } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore.js";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+  const [selectedCoverImg, setSelectedCoverImg] = useState(null);
+  const [isEditingBio, setIsEditingBio] = useState(false); // State for editing bio
+  const [newBio, setNewBio] = useState(authUser?.bio || ""); // State to manage the new bio text
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -21,55 +24,125 @@ const ProfilePage = () => {
     };
   };
 
+  const handleCoverImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.readAsDataURL(file);
+
+    reader.onload = async () => {
+      const base64CoverImage = reader.result;
+      setSelectedCoverImg(base64CoverImage);
+      await updateProfile({ coverImg: base64CoverImage });
+    };
+  };
+
+  const handleBioChange = (e) => {
+    setNewBio(e.target.value);
+  };
+
+  const saveBio = async () => {
+    await updateProfile({ bio: newBio });
+    setIsEditingBio(false); // Stop editing after saving
+  };
+
   return (
-    <div className="h-screen pt-20">
+    <div className="min-h-screen pt-20 bg-base-100">
       <div className="max-w-2xl mx-auto p-4 py-8">
-        <div className="bg-base-300 rounded-xl p-6 space-y-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold ">Profile</h1>
-            <p className="mt-2">Your profile information</p>
-          </div>
-
-          {/* avatar upload section */}
-
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative">
-              <img
-                src={selectedImg || authUser.profileImg || "/avatar.png"}
-                alt="Profile"
-                className="size-32 rounded-full object-cover border-4 "
+        <div className="bg-base-300 rounded-xl p-6 space-y-8 relative">
+          {/* Cover image */}
+          <div className="relative">
+            <img
+              src={
+                selectedCoverImg ||
+                authUser?.coverImg ||
+                "/default-cover-image.png"
+              }
+              alt="Cover"
+              className="w-full h-48 object-cover rounded-xl"
+            />
+            <label
+              htmlFor="cover-upload"
+              className={`absolute bottom-4 right-4 bg-base-content p-2 rounded-full cursor-pointer hover:scale-105 transition-all ${
+                isUpdatingProfile ? "animate-pulse pointer-events-none" : ""
+              }`}
+            >
+              <Camera className="w-5 h-5 text-base-200" />
+              <input
+                type="file"
+                id="cover-upload"
+                className="hidden"
+                accept="image/*"
+                onChange={handleCoverImageUpload}
+                disabled={isUpdatingProfile}
               />
-              <label
-                htmlFor="avatar-upload"
-                className={`
-                  absolute bottom-0 right-0 
-                  bg-base-content hover:scale-105
-                  p-2 rounded-full cursor-pointer 
-                  transition-all duration-200
-                  ${
-                    isUpdatingProfile ? "animate-pulse pointer-events-none" : ""
-                  }
-                `}
-              >
-                <Camera className="w-5 h-5 text-base-200" />
-                <input
-                  type="file"
-                  id="avatar-upload"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={isUpdatingProfile}
-                />
-              </label>
-            </div>
-            <p className="text-sm text-zinc-400">
-              {isUpdatingProfile
-                ? "Uploading..."
-                : "Click the camera icon to update your photo"}
-            </p>
+            </label>
           </div>
 
-          <div className="space-y-6">
+          {/* Profile Section Overlaying Cover Image */}
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <img
+                  src={selectedImg || authUser.profileImg || "/avatar.png"}
+                  alt="Profile"
+                  className="size-32 rounded-full object-cover border-4 "
+                />
+                <label
+                  htmlFor="avatar-upload"
+                  className={`absolute bottom-0 right-0 bg-base-content p-2 rounded-full cursor-pointer hover:scale-105 transition-all ${
+                    isUpdatingProfile ? "animate-pulse pointer-events-none" : ""
+                  }`}
+                >
+                  <Camera className="w-5 h-5 text-base-200" />
+                  <input
+                    type="file"
+                    id="avatar-upload"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUpdatingProfile}
+                  />
+                </label>
+              </div>
+              <h1 className="text-2xl font-semibold">Profile</h1>
+            </div>
+          </div>
+
+          {/* Bio */}
+          <div className="text-center mt-4">
+            <h2 className="text-lg font-medium">About Me</h2>
+            <div className="flex items-center justify-between mt-2">
+              {isEditingBio ? (
+                <div className="w-full">
+                  <textarea
+                    value={newBio}
+                    onChange={handleBioChange}
+                    rows="4"
+                    className="textarea textarea-bordered w-full max-w-xs"
+                  />
+                  <button onClick={saveBio} className="btn btn-primary mt-2">
+                    Save Bio
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm text-zinc-400 w-full">{authUser.bio}</p>
+                  <button
+                    onClick={() => setIsEditingBio(true)}
+                    className="btn btn-icon bg-transparent"
+                  >
+                    <Pencil className="w-5 h-5 text-base-400" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Personal Info */}
+          <div className="space-y-6 mt-40">
             <div className="space-y-1.5">
               <div className="text-sm text-zinc-400 flex items-center gap-2">
                 <User className="w-4 h-4" />
@@ -92,7 +165,7 @@ const ProfilePage = () => {
           </div>
 
           <div className="mt-6 bg-base-300 rounded-xl p-6">
-            <h2 className="text-lg font-medium  mb-4">Account Information</h2>
+            <h2 className="text-lg font-medium mb-4">Account Information</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
                 <span>Member Since</span>
@@ -109,4 +182,5 @@ const ProfilePage = () => {
     </div>
   );
 };
+
 export default ProfilePage;

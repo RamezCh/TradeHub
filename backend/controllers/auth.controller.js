@@ -64,7 +64,7 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("-password");
     const isPasswordCorrect = await bcrypt.compare(
       password,
       user?.password || ""
@@ -76,15 +76,7 @@ export const login = async (req, res) => {
 
     generateTokenAndSetCookie(user._id, res);
 
-    res.status(200).json({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      sellerStatus: user.sellerStatus,
-    });
+    res.status(200).json(user);
   } catch (error) {
     console.error("Error in login controller:", error.message);
     res.status(500).json({ error: "Internal Server Error" });

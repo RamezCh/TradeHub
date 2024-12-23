@@ -6,6 +6,7 @@ import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import ErrorPage from "./pages/ErrorPage";
 import ProfilePage from "./pages/ProfilePage";
+import PublicProfile from "./pages/PublicProfile.jsx";
 import SettingsPage from "./pages/SettingsPage";
 import ListingPage from "./pages/ListingPage";
 import InboxPage from "./pages/InboxPage";
@@ -51,6 +52,7 @@ const App = () => {
           path="/profile"
           element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
+        <Route path="/profile/:username" element={<PublicProfile />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/listing/:listingId" element={<ListingPage />} />
         <Route
