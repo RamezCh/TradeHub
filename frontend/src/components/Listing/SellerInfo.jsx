@@ -17,7 +17,9 @@ const SellerInfo = ({
       <div className="card-body items-center text-center">
         <div className="avatar mb-4">
           <div className="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-            <img src={profileImg || "/avatar.png"} alt="Profile" />
+            <Link to={`/profile/${username}`}>
+              <img src={profileImg || "/avatar.png"} alt="Profile" />
+            </Link>
           </div>
         </div>
         <h2 className="card-title">
