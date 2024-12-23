@@ -3,14 +3,16 @@ import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
 export const useListingsStore = create((set) => ({
-  services: [],
-  items: [],
+  services: null,
+  items: null,
+  listing: null,
   totalServices: 0,
   totalItems: 0,
   totalServicesPages: 0,
   totalItemsPages: 0,
   isLoadingItems: false,
   isLoadingServices: false,
+  isLoadingListing: false,
   page: 1,
   limit: 5,
   error: null,
@@ -51,18 +53,18 @@ export const useListingsStore = create((set) => ({
 
   // Action to fetch a listing by ID
   fetchListingById: async (id) => {
-    set({ isLoadingListings: true });
+    set({ isLoadingListing: true });
 
     try {
       const response = await axiosInstance.get(`/listings/${id}`);
       const data = response.data;
 
-      set({ listings: [data.listing] });
+      set({ listing: data.listing });
     } catch (err) {
       set({ error: "Error fetching listing" });
       toast.error("Error fetching listing", err);
     } finally {
-      set({ isLoadingListings: false });
+      set({ isLoadingListing: false });
     }
   },
 

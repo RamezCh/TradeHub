@@ -7,6 +7,8 @@ import LoginPage from "./pages/LoginPage";
 import ErrorPage from "./pages/ErrorPage";
 import ProfilePage from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
+import ListingPage from "./pages/ListingPage";
+import InboxPage from "./pages/InboxPage";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore.js";
 import { useThemeStore } from "./store/useThemeStore";
@@ -50,6 +52,15 @@ const App = () => {
           element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/listing/:listingId" element={<ListingPage />} />
+        <Route
+          path="/inbox"
+          element={authUser ? <InboxPage /> : <HomePage />}
+        />
+        <Route
+          path="/inbox/:username"
+          element={authUser ? <InboxPage /> : <HomePage />}
+        />
         <Route path="/*" element={<ErrorPage />} />
       </Routes>
       <Footer />

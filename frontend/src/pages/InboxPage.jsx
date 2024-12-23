@@ -1,11 +1,19 @@
 import { useChatStore } from "../store/useChatStore";
-
 import Sidebar from "../components/Sidebar";
 import NoChatSelected from "../components/NoChatSelected";
 import ChatContainer from "../components/ChatContainer";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
-const Inbox = () => {
-  const { selectedUser } = useChatStore();
+const InboxPage = () => {
+  const { selectedUser, setSelectedUserByUsername } = useChatStore();
+  const { username } = useParams();
+
+  useEffect(() => {
+    if (username) {
+      setSelectedUserByUsername(username);
+    }
+  }, [username, setSelectedUserByUsername]);
 
   return (
     <div className="h-screen bg-base-200">
@@ -21,4 +29,5 @@ const Inbox = () => {
     </div>
   );
 };
-export default Inbox;
+
+export default InboxPage;

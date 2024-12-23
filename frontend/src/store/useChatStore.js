@@ -69,4 +69,16 @@ export const useChatStore = create((set, get) => ({
   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
+
+  setSelectedUserByUsername: async (username) => {
+    try {
+      const res = await axiosInstance.get(`/users/profile/${username}`);
+      const user = res.data;
+      set({ selectedUser: user });
+      get().getMessages(user._id);
+      get().subscribeToMessages();
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  },
 }));

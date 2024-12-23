@@ -185,13 +185,29 @@ export const getListing = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const listing = await Listing.findById(id);
+    const listing = await Listing.findById(id)
+      .populate(
+        "providerId",
+        "firstName lastName username profileImg createdAt"
+      )
+      .lean();
 
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });
     }
 
-    res.status(200).json({ listing });
+    // Extract provider details and flatten into the listing object
+    const { providerId, ...restListing } = listing;
+    const flatListing = {
+      ...restListing,
+      providerFirstName: providerId.firstName,
+      providerLastName: providerId.lastName,
+      providerUsername: providerId.username,
+      providerProfileImg: providerId.profileImg,
+      providerCreatedAt: providerId.createdAt,
+    };
+
+    res.status(200).json({ listing: flatListing });
   } catch (error) {
     res
       .status(500)

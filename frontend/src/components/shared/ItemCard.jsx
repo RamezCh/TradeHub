@@ -17,7 +17,7 @@ const ItemCard = ({ itemId, title, image, location, createdAt }) => {
           <strong>{location}, </strong> {formatDate(createdAt)}
         </p>
         <div className="card-actions justify-end">
-          <Link to={`/listings/${itemId}`} className="btn btn-primary">
+          <Link to={`/listing/${itemId}`} className="btn btn-primary">
             View Details
           </Link>
         </div>
