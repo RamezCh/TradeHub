@@ -8,11 +8,11 @@ const ItemCard = ({ itemId, title, image, location, createdAt }) => {
 
   return (
     <div className="card bg-neutral w-64 shadow-xl">
-      <figure className="card-img h-44 rounded-t-xl overflow-hidden">
-        <img src={image} alt={title} className="h-full w-full object-fit" />
+      <figure className="card-img h-44 overflow-hidden">
+        <img src={image} alt={title} className="w-full h-full object-cover" />
       </figure>
       <div className="card-body">
-        <h2 className="card-title">{title}</h2>
+        <h2 className="card-title text-secondary-content">{title}</h2>
         <p className="text-sm text-neutral-content">
           <strong>{location}, </strong> {formatDate(createdAt)}
         </p>

@@ -6,6 +6,7 @@ import ListingCard from "../components/Listing/ListingCard";
 import SellerInfo from "../components/Listing/SellerInfo";
 import ListingSkeleton from "../components/skeletons/ListingSkeleton";
 import ListingInfo from "../components/Listing/ListingInfo";
+import SimilarAds from "../components/shared/SimilarAds";
 
 const ListingPage = () => {
   const { listingId } = useParams();
@@ -33,6 +34,8 @@ const ListingPage = () => {
     condition,
     location,
     category,
+    type,
+    _id: doNotMatchID,
   } = listing;
 
   return (
@@ -67,6 +70,15 @@ const ListingPage = () => {
           condition={condition}
           category={category}
           location={location}
+        />
+      </div>
+
+      {/* Similar Ads */}
+      <div className="mt-6">
+        <SimilarAds
+          category={category}
+          type={type}
+          doNotMatchID={doNotMatchID}
         />
       </div>
     </div>
