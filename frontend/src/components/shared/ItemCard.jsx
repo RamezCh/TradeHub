@@ -8,12 +8,12 @@ const ItemCard = ({ itemId, title, image, location, createdAt }) => {
 
   return (
     <div className="card bg-neutral w-64 shadow-xl">
-      <figure>
-        <img src={image} alt={title} className="h-44 object-fit w-full" />
+      <figure className="card-img h-44 rounded-t-xl overflow-hidden">
+        <img src={image} alt={title} className="h-full w-full object-fit" />
       </figure>
       <div className="card-body">
         <h2 className="card-title">{title}</h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-neutral-content">
           <strong>{location}, </strong> {formatDate(createdAt)}
         </p>
         <div className="card-actions justify-end">
