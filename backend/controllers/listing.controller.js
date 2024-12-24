@@ -185,6 +185,10 @@ export const getListing = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // seller: first name, last name, username, profile image, date joined
+    // listing: type, title, description, images, condition, status (available/traded), price, tradeOptions, rating, reviews (reviewer first name, last name, username, profile image)
+    // location: name
+    // category: name
     const listing = await Listing.findById(id)
       .populate(
         "providerId",

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const listingSchema = new mongoose.Schema(
   {
-    providerId: {
+    seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // Reference to the User model
       required: true,
@@ -51,6 +51,35 @@ const listingSchema = new mongoose.Schema(
       type: String,
       enum: ["available", "traded"],
       default: "available",
+    },
+    price: {
+      type: Number,
+      required: function () {
+        return !this.tradeOptions;
+      },
+    },
+    tradeOptions: {
+      type: [
+        {
+          type: {
+            type: String,
+            enum: [
+              "item",
+              "service",
+              "price+item",
+              "service+price",
+              "service+item",
+            ],
+            required: true,
+          },
+        },
+      ],
+      validate: {
+        validator: function (v) {
+          return this.price || (v && v.length > 0); // Ensure at least one of price or tradeOptions is provided
+        },
+        message: "Either price or tradeOptions must be provided.",
+      },
     },
     rating: {
       type: Number,

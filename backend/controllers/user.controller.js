@@ -10,7 +10,19 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findOne({ username }).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.status(200).json(user);
+    const userProfile = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      profileImg: user.profileImg,
+      coverImg: user.coverImg,
+      bio: user.bio,
+      sellerStatus: user.sellerStatus,
+      rating: user.rating,
+      languages: user.languages,
+    };
+
+    res.status(200).json(userProfile);
   } catch (error) {
     console.log("Error in getUserProfile: ", error.message);
     res.status(500).json({ error: error.message });

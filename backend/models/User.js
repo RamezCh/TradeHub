@@ -43,22 +43,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Middleware for seller validation
-userSchema.pre("save", function (next) {
-  if (
-    !this.sellerStatus &&
-    (this.services.length > 0 || this.items.length > 0)
-  ) {
-    return next(
-      new Error(
-        "Only users with 'sellerStatus' enabled can offer items or services."
-      )
-    );
-  }
-
-  next();
-});
-
 const User = mongoose.model("User", userSchema);
 
 export default User;

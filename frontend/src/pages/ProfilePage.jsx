@@ -55,11 +55,7 @@ const ProfilePage = () => {
           {/* Cover image */}
           <div className="relative">
             <img
-              src={
-                selectedCoverImg ||
-                authUser?.coverImg ||
-                "/default-cover-image.png"
-              }
+              src={selectedCoverImg || authUser?.coverImg || "/cover.jpg"}
               alt="Cover"
               className="w-full h-48 object-cover rounded-xl"
             />
