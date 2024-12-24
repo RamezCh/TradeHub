@@ -14,31 +14,25 @@ const userSchema = new mongoose.Schema(
       default: "I am.. I sell.. I offer.. I am searching for..",
     },
     isAdmin: { type: Boolean, default: false },
-    sellerStatus: { type: Boolean, default: false }, // Flag for seller status
-    // Referencing Service and Item models
-    services: [
+    sellerStatus: { type: Boolean, default: false },
+    languages: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Service",
+        name: { type: String, required: true },
+        level: {
+          type: String,
+          enum: ["beginner", "intermediate", "fluent", "native"],
+          required: true,
+        },
       },
     ],
-    items: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Item",
-      },
-    ],
+    balance: { type: Number, default: 0 },
+    rating: { type: Number, default: 0 },
     favProviders: [
       {
         _id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         type: { type: String, enum: ["item", "service"], required: true },
       },
     ],
-    defaultPaymentMethod: {
-      type: String,
-      enum: ["PayPal", "Credit Card", "Bank Transfer"],
-      default: "PayPal",
-    }, // Default payment method
   },
   { timestamps: true }
 );

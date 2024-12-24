@@ -38,35 +38,13 @@ const listingSchema = new mongoose.Schema(
       required: true,
     },
     location: {
-      type: String,
-      enum: [
-        "Saida",
-        "Beirut",
-        "Tripoli",
-        "Zahle",
-        "Jounieh",
-        "Tyre",
-        "Batroun",
-        "Byblos",
-        "Baalbek",
-      ],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Location", // Reference to Location collection
       required: true,
     },
     category: {
-      type: String,
-      enum: [
-        "Vechiles",
-        "Electronics",
-        "Fashion",
-        "Home",
-        "Books",
-        "Toys",
-        "Beauty",
-        "Sports",
-        "Suppliments",
-        "Medicine",
-        "Other",
-      ],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category", // Reference to Category collection
       required: true,
     },
     status: {
@@ -74,6 +52,36 @@ const listingSchema = new mongoose.Schema(
       enum: ["available", "traded"],
       default: "available",
     },
+    rating: {
+      type: Number,
+      default: 0, // Average rating
+      min: 0,
+      max: 5,
+    },
+    reviews: [
+      {
+        reviewer: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        rating: {
+          type: Number,
+          required: true,
+          min: 1,
+          max: 5, // Ratings are typically between 1 and 5
+        },
+        comment: {
+          type: String,
+          required: true,
+          maxlength: [1000, "Comment cannot exceed 1000 characters"],
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now, // Timestamp for the review
+        },
+      },
+    ],
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
@@ -81,5 +89,21 @@ const listingSchema = new mongoose.Schema(
 );
 
 const Listing = mongoose.model("Listing", listingSchema);
-
 export default Listing;
+
+listingSchema.methods.calculateAverageRating = function () {
+  if (this.reviews.length > 0) {
+    const totalRating = this.reviews.reduce(
+      (sum, review) => sum + review.rating,
+      0
+    );
+    this.rating = totalRating / this.reviews.length;
+  } else {
+    this.rating = 0; // No reviews, so no rating
+  }
+};
+
+listingSchema.pre("save", function (next) {
+  this.calculateAverageRating();
+  next();
+});
