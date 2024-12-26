@@ -32,7 +32,7 @@ const Navbar = () => {
             </Link>
 
             {/* Become a Seller */}
-            <Link to="/settings" className="btn btn-ghost text-xl">
+            <Link to="/register-seller" className="btn btn-ghost text-xl">
               Become a Seller
             </Link>
 

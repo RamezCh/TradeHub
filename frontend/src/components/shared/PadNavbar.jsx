@@ -49,7 +49,7 @@ const PadNavbar = () => {
                 Theme
               </Link>
               <Link
-                to="/seller"
+                to="/register-seller"
                 className="btn btn-ghost w-full text-left text-sm"
                 onClick={toggleMenu}
               >
