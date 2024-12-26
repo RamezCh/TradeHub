@@ -237,3 +237,62 @@ export const getListingsByProvider = async (req, res) => {
       .json({ message: "Error fetching listings", error: error.message });
   }
 };
+
+// Search for listings
+export const searchListings = async (req, res) => {
+  try {
+    const {
+      query,
+      page = 1,
+      limit = 5,
+      type,
+      priceMin,
+      priceMax,
+      category,
+    } = req.query;
+    const skip = (page - 1) * limit;
+
+    // Handle and sanitize `type`
+    let correctedType = type?.toLowerCase() || null;
+    if (correctedType) {
+      correctedType = correctedType.startsWith("ite") ? "item" : correctedType;
+      correctedType = correctedType.startsWith("serv")
+        ? "service"
+        : correctedType;
+    }
+
+    // Build the dynamic query object
+    const searchQuery = {
+      status: "available",
+      ...(correctedType !== "all" && correctedType && { type: correctedType }),
+      ...(category && { category: { $regex: category, $options: "i" } }),
+      ...(priceMin &&
+        !isNaN(priceMin) && { price: { $gte: Number(priceMin) } }),
+      ...(priceMax &&
+        !isNaN(priceMax) && {
+          price: { ...searchQuery?.price, $lte: Number(priceMax) },
+        }),
+      $or: [
+        { title: { $regex: query || "", $options: "i" } },
+        { description: { $regex: query || "", $options: "i" } },
+      ],
+    };
+
+    // Search for listings
+    const listings = await Listing.find(searchQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Handle empty results
+    if (listings.length === 0) {
+      return res.status(200).json({ message: "No listings found" });
+    }
+
+    res.status(200).json({ listings });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error searching listings", error: error.message });
+  }
+};
