@@ -46,3 +46,10 @@ const userSchema = new mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 
 export default User;
+
+userSchema.pre("save", function (next) {
+  if (this.sellerStatus && (!this.languages || this.languages.length === 0)) {
+    return next(new Error("Sellers must have at least one language."));
+  }
+  next();
+});

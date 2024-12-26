@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ChartCandlestick, Settings, User, KeyRound } from "lucide-react";
+import { ChartCandlestick } from "lucide-react";
 import SearchBar from "./SearchBar";
 
 const Navbar = () => {
@@ -21,22 +21,32 @@ const Navbar = () => {
           </div>
 
           {/* Search Bar */}
-          <SearchBar />
+          <div className="w-3/6">
+            <SearchBar />
+          </div>
 
           <div className="flex items-center gap-2">
             {/* Settings */}
-            <Link to="/settings" className="btn btn-sm gap-2 transition-colors">
-              <Settings className="w-4 h-4" />
+            <Link to="/settings" className="btn btn-ghost text-xl">
+              Theme
+            </Link>
+
+            {/* Become a Seller */}
+            <Link to="/settings" className="btn btn-ghost text-xl">
+              Become a Seller
             </Link>
 
             {/* Login */}
-            <Link to="/login" className="btn btn-sm gap-2 transition-colors">
-              <KeyRound className="w-4 h-4" />
+            <Link to="/login" className="btn btn-ghost text-xl">
+              Sign In
             </Link>
 
             {/* Signup */}
-            <Link to="/signup" className="btn btn-sm gap-2 transition-colors">
-              <User className="w-4 h-4" />
+            <Link
+              to="/signup"
+              className="btn btn-m gap-2 transition-colors text-xl"
+            >
+              Join
             </Link>
           </div>
         </div>

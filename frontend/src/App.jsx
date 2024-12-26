@@ -16,6 +16,9 @@ import { useThemeStore } from "./store/useThemeStore";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
+import SearchResultsPage from "./pages/SearchResultsPage.jsx";
+import MobileNavbar from "./components/shared/MobileNavBar.jsx";
+import PadNavbar from "./components/shared/PadNavbar.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -37,7 +40,21 @@ const App = () => {
 
   return (
     <div data-theme={theme}>
-      {authUser == null ? <Navbar /> : <LoggedInNavbar />}
+      {authUser == null ? (
+        <>
+          <div className="hidden lg:block">
+            <Navbar />
+          </div>
+          <div className="hidden md:block lg:hidden">
+            <PadNavbar />
+          </div>
+          <div className="block md:hidden">
+            <MobileNavbar />
+          </div>
+        </>
+      ) : (
+        <LoggedInNavbar />
+      )}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route
@@ -55,6 +72,7 @@ const App = () => {
         <Route path="/profile/:username" element={<PublicProfile />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/listing/:listingId" element={<ListingPage />} />
+        <Route path="/listings/search" element={<SearchResultsPage />} />
         <Route
           path="/inbox"
           element={authUser ? <InboxPage /> : <HomePage />}
