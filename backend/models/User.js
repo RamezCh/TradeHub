@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema(
     lastName: { type: String, required: true },
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
+    isEmailVerified: { type: Boolean, default: false },
+    verificationToken: { type: String },
     password: { type: String, required: true },
     profileImg: { type: String, default: "default-profile-image.png" },
     coverImg: { type: String, default: "default-cover-image.png" },

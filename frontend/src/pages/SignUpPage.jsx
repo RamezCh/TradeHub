@@ -171,22 +171,11 @@ const SignUpPage = () => {
                       setFormData({ ...formData, password: e.target.value })
                     }
                   />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="size-5 text-base-content/40" />
-                    ) : (
-                      <Eye className="size-5 text-base-content/40" />
-                    )}
-                  </button>
                 </div>
               </div>
 
               {/* Confirm Password */}
-              <div className="form-control w-1/2 ml-2">
+              <div className="form-control w-1/2 ml-2 mb-5">
                 <label className="label">
                   <span className="label-text font-medium">
                     Confirm Password
@@ -221,26 +210,6 @@ const SignUpPage = () => {
                   </button>
                 </div>
               </div>
-            </div>
-
-            {/* Seller Status */}
-            <div className="form-control">
-              <label className="cursor-pointer label">
-                <span className="label-text font-medium">
-                  Register as a Seller
-                </span>
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-primary"
-                  checked={formData.sellerStatus}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      sellerStatus: e.target.checked,
-                    })
-                  }
-                />
-              </label>
             </div>
 
             {/* Submit Button */}

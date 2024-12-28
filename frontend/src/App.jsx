@@ -19,6 +19,8 @@ import { Toaster } from "react-hot-toast";
 import SearchResultsPage from "./pages/SearchResultsPage.jsx";
 import MobileNavbar from "./components/shared/MobileNavBar.jsx";
 import PadNavbar from "./components/shared/PadNavbar.jsx";
+import RegisterSellerPage from "./pages/RegisterSellerPage.jsx";
+import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -55,12 +57,18 @@ const App = () => {
       ) : (
         <LoggedInNavbar />
       )}
+      <div className="h-16 mb-2 bg-black bg-opacity-55"></div>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route
           path="/signup"
           element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
         />
+        <Route
+          path="/register-seller"
+          element={!authUser ? <RegisterSellerPage /> : <Navigate to="/" />}
+        />
+        <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         <Route
           path="/login"
           element={!authUser ? <LoginPage /> : <Navigate to="/" />}
