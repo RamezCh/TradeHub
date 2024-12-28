@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { ChartCandlestick, Menu } from "lucide-react";
-import SearchBar from "./SearchBar";
+import { ChartCandlestick, Menu, X } from "lucide-react";
+import SearchBar from "../SearchBar";
 import { useState } from "react";
 
 const PadNavbar = () => {
@@ -34,7 +34,7 @@ const PadNavbar = () => {
           className="btn btn-ghost btn-circle lg:hidden"
           aria-label="Toggle menu"
         >
-          <Menu className="w-6 h-6" />
+          {menuOpen ? <X /> : <Menu className="w-6 h-6" />}
         </button>
 
         {/* Mobile Menu */}

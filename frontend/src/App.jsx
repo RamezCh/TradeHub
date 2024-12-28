@@ -1,5 +1,7 @@
-import Navbar from "./components/shared/Navbar";
-import LoggedInNavbar from "./components/shared/LoggedInNavbar";
+import Navbar from "./components/shared/Navbar/Navbar.jsx";
+import LoggedInNavbar from "./components/shared/Logged In Navbar/LoggedInNavbar";
+import LoggedInMobileNavbar from "./components/shared/Logged In Navbar/LoggedInMobileNavbar.jsx";
+import LoggedInPadNavbar from "./components/shared/Logged In Navbar/LoggedInPadNavbar.jsx";
 import Footer from "./components/shared/Footer";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
@@ -17,8 +19,8 @@ import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import SearchResultsPage from "./pages/SearchResultsPage.jsx";
-import MobileNavbar from "./components/shared/MobileNavBar.jsx";
-import PadNavbar from "./components/shared/PadNavbar.jsx";
+import MobileNavbar from "./components/shared/Navbar/MobileNavbar.jsx";
+import PadNavbar from "./components/shared/Navbar/PadNavbar.jsx";
 import RegisterSellerPage from "./pages/RegisterSellerPage.jsx";
 import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 
@@ -55,7 +57,17 @@ const App = () => {
           </div>
         </>
       ) : (
-        <LoggedInNavbar />
+        <>
+          <div className="hidden lg:block">
+            <LoggedInNavbar />
+          </div>
+          <div className="hidden md:block lg:hidden">
+            <LoggedInPadNavbar />
+          </div>
+          <div className="block md:hidden">
+            <LoggedInMobileNavbar />
+          </div>
+        </>
       )}
       <div className="h-16 mb-2 bg-black bg-opacity-55"></div>
       <Routes>
