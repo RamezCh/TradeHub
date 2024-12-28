@@ -85,6 +85,21 @@ const resendVerificationEmail = async (req, res) => {
 
 const router = express.Router();
 
+router.post("/isVerified", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (user.isEmailVerified) {
+      return res.status(200).json({ verified: true });
+    }
+    return res.status(200).json({ verified: false });
+  } catch (error) {
+    console.error("Error in email verification:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 // Route to verify email
 router.post("/", verifyEmail);
 

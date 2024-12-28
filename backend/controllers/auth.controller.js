@@ -4,6 +4,15 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import sendgridMail from "@sendgrid/mail";
 import dotenv from "dotenv";
+import cloudinary from "cloudinary";
+import { profile } from "console";
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 dotenv.config();
 
@@ -12,12 +21,27 @@ sendgridMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const signup = async (req, res) => {
   try {
-    const { firstName, lastName, username, email, password, sellerStatus } =
-      req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      bio,
+      sellerStatus = false,
+      languages = [],
+    } = req.body;
+
+    let { profileImg, coverImg, username } = req.body;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    username = username?.toLowerCase();
+
+    if (!username) {
+      username = firstName.toLowerCase() + "." + lastName.toLowerCase();
     }
 
     const existingUser = await User.findOne({ username });
@@ -36,6 +60,34 @@ export const signup = async (req, res) => {
         .json({ error: "Password must be at least 6 characters long" });
     }
 
+    if (sellerStatus && (!languages || languages.length === 0)) {
+      return res.status(400).json({
+        error: "Sellers must provide at least one language.",
+      });
+    }
+
+    const formattedLanguages = languages.map((lang) => ({
+      name:
+        lang.name.charAt(0).toUpperCase() + lang.name.slice(1).toLowerCase(),
+      level: lang.level.toLowerCase(),
+    }));
+
+    if (profileImg) {
+      await cloudinary.uploader.destroy(
+        profileImg.split("/").pop().split(".")[0]
+      );
+      const uploadedResponse = await cloudinary.uploader.upload(profileImg);
+      profileImg = uploadedResponse.secure_url;
+    }
+
+    if (coverImg) {
+      await cloudinary.uploader.destroy(
+        coverImg.split("/").pop().split(".")[0]
+      );
+      const uploadedResponse = await cloudinary.uploader.upload(coverImg);
+      coverImg = uploadedResponse.secure_url;
+    }
+
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -46,50 +98,40 @@ export const signup = async (req, res) => {
       lastName,
       username,
       email,
+      bio,
       password: hashedPassword,
       sellerStatus,
       verificationToken,
+      languages: sellerStatus ? formattedLanguages : [],
+      profileImg: profileImg || "default-profile-image.png",
+      coverImg: coverImg || "default-cover-image.png",
     });
 
-    if (newUser) {
-      await newUser.save();
-      generateTokenAndSetCookie(newUser._id, res);
+    await newUser.save();
+    generateTokenAndSetCookie(newUser._id, res);
 
-      const verificationLink = `${process.env.CORS_ORIGIN}/verify-email/${verificationToken}`;
+    const verificationLink = `${process.env.CORS_ORIGIN}/verify-email/${verificationToken}`;
 
-      // Send email using SendGrid
-      const msg = {
-        to: email,
-        from: process.env.SENDER_EMAIL,
-        subject: "Verify Your Email",
-        html: `<body style="font-family: 'Muli', sans-serif; font-size: 14px; color: #000000; margin: 0; padding: 0; background-color: #FFFFFF;">
-  <div style="width: 100%; text-align: center;">
-    <div style="width: 100%; padding: 20px;">
-      <h1 style="font-family: 'Arial', sans-serif; color: #333;">TradeHub</h1>
-      <p style="font-family: 'Arial', sans-serif; color: #333;">Thanks for signing up, ${firstName} ${lastName}!</p>
-      <p style="font-family: 'Arial', sans-serif; color: #333;">Please verify your email address.</p>
-      <a href="${verificationLink}" style="background-color: #ffbe00; border-radius: 6px; color: #000; padding: 12px 40px; text-decoration: none; font-size: 14px; display: inline-block;">Verify Email Now</a>
-      <p><strong style="color: #ffbe00; font-family: 'Arial', sans-serif;">Thank you!</strong></p>
-    </div>
-  </div>
-</body>
-`,
-      };
+    const msg = {
+      to: email,
+      from: process.env.SENDER_EMAIL,
+      subject: "Verify Your Email",
+      html: `<p>Thanks for signing up, ${firstName} ${lastName}!</p>
+             <p>Please verify your email address by clicking the link below:</p>
+             <a href="${verificationLink}">Verify Email Now</a>`,
+    };
 
-      await sendgridMail.send(msg);
+    await sendgridMail.send(msg);
 
-      res.status(201).json({
-        _id: newUser._id,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        username: newUser.username,
-        email: newUser.email,
-        sellerStatus: newUser.sellerStatus,
-        message: "Signup successful! Verification email sent.",
-      });
-    } else {
-      res.status(400).json({ error: "Invalid user data" });
-    }
+    res.status(201).json({
+      _id: newUser._id,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      username: newUser.username,
+      email: newUser.email,
+      sellerStatus: newUser.sellerStatus,
+      message: "Signup successful! Verification email sent.",
+    });
   } catch (error) {
     console.error("Error in signup controller:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -119,6 +161,9 @@ export const login = async (req, res) => {
       lastName: user.lastName,
       username: user.username,
       email: user.email,
+      profileImg: user.profileImg,
+      coverImg: user.coverImg,
+      bio: user.bio,
       sellerStatus: user.sellerStatus,
     };
 
@@ -143,7 +188,7 @@ export const checkAuth = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password");
     if (user) {
-      res.status(200).json(user);
+      res.status(200).json({ ...user.toObject(), password: "1" });
     } else {
       res.status(404).json({ error: "User not found" });
     }

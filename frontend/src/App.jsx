@@ -76,10 +76,7 @@ const App = () => {
           path="/signup"
           element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
         />
-        <Route
-          path="/register-seller"
-          element={!authUser ? <RegisterSellerPage /> : <Navigate to="/" />}
-        />
+        <Route path="/register-seller" element={<RegisterSellerPage />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         <Route
           path="/login"

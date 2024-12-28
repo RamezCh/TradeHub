@@ -1,25 +1,45 @@
 import { useState, useEffect } from "react";
-import { Camera, Trash } from "lucide-react";
+import { Camera, Trash, Eye, EyeOff, User, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 
-const PersonalInfo = ({ formData, setFormData, setStepCount }) => {
-  const [currentFormData, setFormDataState] = useState(formData);
+const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
+  const [currentFormData, setFormDataState] = useState({
+    firstName: user.firstName || formData.firstName || "",
+    lastName: user.lastName || formData.lastName || "",
+    bio: user.bio || formData.bio || "",
+    username: user.username || formData.username || "",
+    email: user.email || formData.email || "",
+    password: user.password || formData.password || "",
+    profileImg: user.profileImg || formData.profileImg || "",
+    coverImg: user.coverImg || formData.coverImg || "",
+    languages: user.languages || formData.languages || [],
+  });
+  const [showPassword, setShowPassword] = useState(false);
   const [formValid, setFormValid] = useState(false);
 
   useEffect(() => {
     const validateForm = () => {
-      const isFormValid =
-        currentFormData.firstName &&
-        currentFormData.lastName &&
-        currentFormData.email &&
-        currentFormData.profileImg &&
-        currentFormData.coverImg &&
-        currentFormData.languages.length > 0;
+      const isFormValid = user
+        ? currentFormData.bio &&
+          currentFormData.profileImg &&
+          currentFormData.coverImg &&
+          currentFormData.languages.length > 0
+        : currentFormData.firstName &&
+          currentFormData.lastName &&
+          currentFormData.bio &&
+          currentFormData.username &&
+          currentFormData.email &&
+          currentFormData.password &&
+          currentFormData.confirmPassword &&
+          currentFormData.profileImg &&
+          currentFormData.coverImg &&
+          currentFormData.languages.length > 0;
+
       setFormValid(isFormValid);
     };
 
     validateForm();
-  }, [currentFormData]);
+  }, [currentFormData, user]);
 
   const handleImageUpload = (e, setImage) => {
     const file = e.target.files[0];
@@ -50,7 +70,9 @@ const PersonalInfo = ({ formData, setFormData, setStepCount }) => {
       ...currentFormData.languages,
       { name: language, level: proficiency },
     ];
+
     setFormDataState({ ...currentFormData, languages: updatedLanguages });
+    setFormData({ ...currentFormData, languages: updatedLanguages });
     document.getElementById("language-modal").close();
   };
 
@@ -59,6 +81,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount }) => {
       (_, i) => i !== index
     );
     setFormDataState({ ...currentFormData, languages: updatedLanguages });
+    setFormData({ ...currentFormData, languages: updatedLanguages }); // Sync languages to parent component
   };
 
   const handleNameChange = (e) => {
@@ -70,8 +93,32 @@ const PersonalInfo = ({ formData, setFormData, setStepCount }) => {
   };
 
   const handleContinue = () => {
+    const errors = [];
+    if (!user) {
+      if (!currentFormData.username.trim()) errors.push("Username is required");
+      if (!currentFormData.firstName.trim())
+        errors.push("First Name is required");
+      if (!currentFormData.lastName.trim())
+        errors.push("Last Name is required");
+      if (!currentFormData.email.trim()) errors.push("Email is required");
+      if (!/\S+@\S+\.\S+/.test(currentFormData.email))
+        errors.push("Invalid email format");
+      if (!currentFormData.password) errors.push("Password is required");
+      if (currentFormData.password.length < 6)
+        errors.push("Password must be at least 6 characters");
+      if (!currentFormData.confirmPassword)
+        errors.push("Confirm password is required");
+      if (currentFormData.password !== currentFormData.confirmPassword)
+        errors.push("Passwords do not match");
+    }
+
+    if (errors.length > 0) {
+      errors.forEach((error) => toast.error(error));
+      setFormValid(false);
+      return;
+    }
     setFormData(currentFormData);
-    setStepCount(2);
+    setStepCount();
   };
 
   return (
@@ -96,6 +143,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount }) => {
               onChange={handleNameChange}
               placeholder="First Name"
               className="input input-bordered w-full"
+              disabled={user.firstName}
             />
             <input
               type="text"
@@ -104,6 +152,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount }) => {
               onChange={handleNameChange}
               placeholder="Last Name"
               className="input input-bordered w-full"
+              disabled={user.lastName}
             />
           </div>
         </div>
@@ -176,6 +225,26 @@ const PersonalInfo = ({ formData, setFormData, setStepCount }) => {
           />
         </div>
 
+        {/* Username */}
+        <label className="label">
+          <span className="label-text font-medium">Username</span>
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <User className="size-5 text-base-content/40" />
+          </div>
+          <input
+            type="text"
+            className={`input input-bordered w-full pl-10`}
+            placeholder="Username"
+            disabled={user.username}
+            value={currentFormData.username}
+            onChange={(e) =>
+              setFormDataState({ ...currentFormData, username: e.target.value })
+            }
+          />
+        </div>
+
         {/* Email Section */}
         <div className="space-y-4">
           <label className="block font-medium">
@@ -184,11 +253,76 @@ const PersonalInfo = ({ formData, setFormData, setStepCount }) => {
           <input
             type="email"
             name="email"
+            disabled={user.email}
             value={currentFormData.email}
             onChange={handleNameChange}
             placeholder="Your Email"
             className="input input-bordered w-full"
           />
+        </div>
+
+        {/* Password and Confirm Password */}
+        <div className="flex justify-between mb-6">
+          {/* Password */}
+          <div className="form-control w-1/2 mr-2">
+            <label className="label">
+              <span className="label-text font-medium">Password</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="size-5 text-base-content/40" />
+              </div>
+              <input
+                disabled={user.password}
+                type={showPassword ? "text" : "password"}
+                className={`input input-bordered w-full pl-10`}
+                placeholder="••••••••"
+                value={currentFormData.password}
+                onChange={(e) =>
+                  setFormDataState({
+                    ...currentFormData,
+                    password: e.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
+
+          {/* Confirm Password */}
+          <div className="form-control w-1/2 ml-2 mb-5">
+            <label className="label">
+              <span className="label-text font-medium">Confirm Password</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="size-5 text-base-content/40" />
+              </div>
+              <input
+                disabled={user.password}
+                type={showPassword ? "text" : "password"}
+                className={`input input-bordered w-full pl-10`}
+                placeholder="••••••••"
+                value={currentFormData.confirmPassword}
+                onChange={(e) =>
+                  setFormDataState({
+                    ...currentFormData,
+                    confirmPassword: e.target.value,
+                  })
+                }
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="size-5 text-base-content/40" />
+                ) : (
+                  <Eye className="size-5 text-base-content/40" />
+                )}
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Language Section */}
