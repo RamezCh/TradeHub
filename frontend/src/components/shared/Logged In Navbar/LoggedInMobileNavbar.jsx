@@ -3,7 +3,7 @@ import { useAuthStore } from "../../../store/useAuthStore";
 import NotificationDropdown from "../../NotificationDropdown";
 import SearchBar from "../SearchBar";
 import { useState } from "react";
-import { LogOut, MessageSquare, Menu, X } from "lucide-react";
+import { LogOut, MessageSquare, Menu, X, ChartCandlestick } from "lucide-react";
 
 const LoggedInMobileNavbar = () => {
   const { logout, authUser } = useAuthStore();
@@ -22,7 +22,7 @@ const LoggedInMobileNavbar = () => {
           className="flex items-center gap-2.5 hover:opacity-80 transition-all"
         >
           <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
-            <span className="text-primary font-bold">TH</span>
+            <ChartCandlestick className="w-5 h-5 text-primary" />
           </div>
           <h1 className="text-lg font-bold">TradeHub</h1>
         </Link>
@@ -46,13 +46,23 @@ const LoggedInMobileNavbar = () => {
           <div className="absolute top-16 left-0 w-full bg-base-100 shadow-lg border-t border-base-300 lg:hidden">
             <nav className="flex flex-col gap-4 p-4">
               <SearchBar />
-              <Link
-                to="/listing/add"
-                className="btn btn-primary w-full text-left text-sm"
-                onClick={toggleMenu}
-              >
-                Add Listing
-              </Link>
+              {authUser && authUser.sellerStatus && (
+                <Link
+                  to="/listing/add"
+                  className="btn btn-primary w-full text-left text-sm"
+                  onClick={toggleMenu}
+                >
+                  Add Listing
+                </Link>
+              )}
+              {authUser && !authUser.sellerStatus && (
+                <Link
+                  to="/register-seller"
+                  className="btn btn-ghost w-full text-left text-sm"
+                >
+                  Become a Seller
+                </Link>
+              )}
               <Link
                 to="/settings"
                 className="btn btn-ghost w-full text-left text-sm"

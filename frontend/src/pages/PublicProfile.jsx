@@ -22,7 +22,7 @@ const PublicProfile = () => {
           {/* Cover image */}
           <div className="relative">
             <img
-              src={profile.coverImg || "/default-cover-image.png"}
+              src={profile.coverImg || "/default-cover-image.jpg"}
               alt="Cover"
               className="w-full h-48 object-cover rounded-xl"
             />
@@ -33,7 +33,7 @@ const PublicProfile = () => {
             <div className="flex flex-col items-center gap-4">
               <div className="relative">
                 <img
-                  src={profile.profileImg || "/avatar.png"}
+                  src={profile.profileImg || "/default-profile-image.png"}
                   alt="Profile"
                   className="w-32 h-32 rounded-full object-cover border-4 border-white"
                 />

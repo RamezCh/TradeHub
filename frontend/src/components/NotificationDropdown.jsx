@@ -28,7 +28,7 @@ const NotificationDropdown = ({ isAuthenticated }) => {
   return (
     isAuthenticated && (
       <div className="relative">
-        <button onClick={toggleDropdown} className="btn btn-sm gap-2">
+        <button onClick={toggleDropdown} className="btn btn-ghost w-auto">
           {/* Show BellDot only if there are unread notifications */}
           {unreadNotifications.length > 0 ? (
             <BellDot className="size-5 text-red-500" />

@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     verificationToken: { type: String },
     password: { type: String, required: true },
     profileImg: { type: String, default: "default-profile-image.png" },
-    coverImg: { type: String, default: "default-cover-image.png" },
+    coverImg: { type: String, default: "default-cover-image.jpg" },
     bio: {
       type: String,
       default: "I am.. I sell.. I offer.. I am searching for..",

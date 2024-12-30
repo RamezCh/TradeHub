@@ -55,7 +55,11 @@ const ProfilePage = () => {
           {/* Cover image */}
           <div className="relative">
             <img
-              src={selectedCoverImg || authUser?.coverImg || "/cover.jpg"}
+              src={
+                selectedCoverImg ||
+                authUser?.coverImg ||
+                "/default-cover-image.jpg"
+              }
               alt="Cover"
               className="w-full h-48 object-cover rounded-xl"
             />
@@ -82,7 +86,11 @@ const ProfilePage = () => {
             <div className="flex flex-col items-center gap-4">
               <div className="relative">
                 <img
-                  src={selectedImg || authUser.profileImg || "/avatar.png"}
+                  src={
+                    selectedImg ||
+                    authUser.profileImg ||
+                    "/default-profile-image.png"
+                  }
                   alt="Profile"
                   className="size-32 rounded-full object-cover border-4 "
                 />
