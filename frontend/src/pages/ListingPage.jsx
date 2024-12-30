@@ -1,7 +1,7 @@
 // src/pages/ListingPage.jsx
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useListingsStore } from "../store/useListingStore";
+import { useListingStore } from "../store/useListingStore";
 import ListingCard from "../components/Listing/ListingCard";
 import SellerInfo from "../components/Listing/SellerInfo";
 import ListingSkeleton from "../components/skeletons/ListingSkeleton";
@@ -10,7 +10,7 @@ import SimilarAds from "../components/shared/SimilarAds";
 
 const ListingPage = () => {
   const { listingId } = useParams();
-  const { listing, isLoadingListing, fetchListingById } = useListingsStore();
+  const { listing, isLoadingListing, fetchListingById } = useListingStore();
 
   useEffect(() => {
     fetchListingById(listingId);

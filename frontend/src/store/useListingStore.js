@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
-export const useListingsStore = create((set) => ({
+export const useListingStore = create((set) => ({
   services: null,
   items: null,
   listing: null,
@@ -84,6 +84,21 @@ export const useListingsStore = create((set) => ({
       toast.error("Error fetching listings by provider", err);
     } finally {
       set({ isLoadingListings: false });
+    }
+  },
+
+  // Create Listing
+  createListing: async (listing) => {
+    try {
+      const response = await axiosInstance.post("/listings/create", listing);
+      const data = response.data;
+      console.log(listing);
+      toast.success(data.message);
+      return data;
+    } catch (err) {
+      set({ error: "Error creating listing" });
+
+      toast.error("Error creating listing", err);
     }
   },
 

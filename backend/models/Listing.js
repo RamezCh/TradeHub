@@ -34,7 +34,7 @@ const listingSchema = new mongoose.Schema(
     },
     condition: {
       type: String,
-      enum: ["New", "Used"],
+      enum: ["new", "used"],
       required: true,
     },
     location: {

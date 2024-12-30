@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useListingsStore } from "../../store/useListingStore";
+import { useListingStore } from "../../store/useListingStore";
 import ItemCard from "../shared/ItemCard";
 import ItemCardSkeleton from "../skeletons/ItemCardSkeleton";
 
@@ -17,7 +17,7 @@ const SimilarAds = ({ type, category, doNotMatchID }) => {
     isLoadingItems,
     isLoadingServices,
     fetchListings,
-  } = useListingsStore();
+  } = useListingStore();
 
   const isServiceType = type === "service";
   const listings = isServiceType ? services : items;

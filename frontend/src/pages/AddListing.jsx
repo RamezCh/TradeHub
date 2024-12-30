@@ -1,13 +1,17 @@
-import { useState } from "react";
+// pages/AddListingPage.js
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import InputField from "../components/shared/InputField";
 import Textarea from "../components/shared/Textarea";
 import Dropdown from "../components/shared/Dropdown";
 import ImageInput from "../components/shared/ImageInput";
 import RadioButton from "../components/shared/RadioButton";
+import { useLocationStore } from "../store/useLocationStore";
+import { useCategoryStore } from "../store/useCategoryStore";
+import { useListingStore } from "../store/useListingStore";
 
 const AddListingPage = () => {
   const [formData, setFormData] = useState({
-    seller: "",
     type: "item",
     title: "",
     description: "",
@@ -18,34 +22,95 @@ const AddListingPage = () => {
     price: "",
     acceptsOtherPaymentForm: "none", // Default to "none"
   });
+
   const [imageUrls, setImageUrls] = useState([]);
   const [error, setError] = useState("");
 
+  const navigate = useNavigate();
+
+  // Submit function
+  const { createListing } = useListingStore();
+
+  // Location and category store data
+  const { locations, isLoadingLocation, fetchLocations } = useLocationStore();
+  const { categories, isLoadingCategory, fetchCategories } = useCategoryStore();
+
+  useEffect(() => {
+    fetchLocations();
+    fetchCategories();
+  }, [fetchLocations, fetchCategories]);
+
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value, type } = e.target;
+    const parsedValue = type === "number" ? parseFloat(value) : value;
+    setFormData({ ...formData, [name]: parsedValue });
   };
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const urls = files.map((file) => URL.createObjectURL(file));
-    setImageUrls([...imageUrls, ...urls]);
-    setFormData({ ...formData, images: [...formData.images, ...files] });
+  const handleInputChangeWithLowerCase = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value.toLowerCase() });
+  };
+
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files); // Convert file list to array
+    const newImageUrls = [];
+    const newImagesBase64 = [];
+
+    // Function to convert file to base64 string
+    const convertFileToBase64 = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result); // This will be the base64 string
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file); // Convert file to base64 string
+      });
+    };
+
+    const processImages = async () => {
+      for (const file of files) {
+        try {
+          const base64Image = await convertFileToBase64(file); // Convert file to base64 string
+          newImagesBase64.push(base64Image); // Store base64 string
+          newImageUrls.push(base64Image); // Store for image preview (base64 string)
+
+          // Update states only when all files have been processed
+          if (newImageUrls.length === files.length) {
+            setImageUrls((prev) => [...prev, ...newImageUrls]);
+            setFormData((prev) => ({
+              ...prev,
+              images: [...prev.images, ...newImagesBase64], // Store base64 strings in formData
+            }));
+          }
+        } catch (error) {
+          console.error("Error converting file to base64", error);
+        }
+      }
+    };
+
+    processImages(); // Execute image processing
   };
 
   const handleImageRemove = (index) => {
-    const updatedImages = imageUrls.filter((_, i) => i !== index);
-    setImageUrls(updatedImages);
-    setFormData({ ...formData, images: updatedImages });
+    const updatedImageUrls = imageUrls.filter((_, i) => i !== index); // Remove from preview URLs
+    const updatedImages = formData.images.filter((_, i) => i !== index); // Remove from formData
+
+    setImageUrls(updatedImageUrls);
+    setFormData((prev) => ({
+      ...prev,
+      images: updatedImages, // Update formData with the new images
+    }));
   };
 
   const handleRadioChange = (selectedOption) => {
     setFormData({ ...formData, acceptsOtherPaymentForm: selectedOption });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate fields
     if (
       !formData.title ||
       !formData.description ||
@@ -57,9 +122,23 @@ const AddListingPage = () => {
       return;
     }
 
-    console.log("Submitted Data", formData);
     setError("");
-    alert("Listing added successfully!");
+
+    try {
+      // Create listing
+      const response = await createListing(formData);
+      if (response) {
+        const listingId = response.listing._id;
+
+        // Redirect after 3 seconds
+        setTimeout(() => {
+          navigate(`/listing/${listingId}`);
+        }, 3000);
+      }
+    } catch (error) {
+      // Catch any errors and set the error message
+      setError("Error creating listing. Please try again.", error);
+    }
   };
 
   return (
@@ -91,10 +170,10 @@ const AddListingPage = () => {
           label="Condition"
           name="condition"
           value={formData.condition}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithLowerCase}
           options={[
-            { label: "New", value: "New" },
-            { label: "Used", value: "Used" },
+            { label: "New", value: "new" },
+            { label: "Used", value: "used" },
           ]}
           required
         />
@@ -103,11 +182,43 @@ const AddListingPage = () => {
           label="Type"
           name="type"
           value={formData.type}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithLowerCase}
           options={[
             { label: "Item", value: "item" },
             { label: "Service", value: "service" },
           ]}
+          required
+        />
+
+        <Dropdown
+          label="Category"
+          name="category"
+          value={formData.category}
+          onChange={handleInputChange}
+          options={
+            isLoadingCategory
+              ? [{ label: "Loading...", value: "" }]
+              : categories.map((category) => ({
+                  label: category.name,
+                  value: category._id,
+                }))
+          }
+          required
+        />
+
+        <Dropdown
+          label="Location"
+          name="location"
+          value={formData.location}
+          onChange={handleInputChange}
+          options={
+            isLoadingLocation
+              ? [{ label: "Loading...", value: "" }]
+              : locations.map((location) => ({
+                  label: location.name,
+                  value: location._id,
+                }))
+          }
           required
         />
 

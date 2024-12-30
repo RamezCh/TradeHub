@@ -12,7 +12,7 @@ const InputField = ({
     <input
       type={type}
       name={name}
-      value={value}
+      value={type === "number" ? Number(value) : value}
       onChange={onChange}
       className="input input-bordered w-full"
       placeholder={placeholder}

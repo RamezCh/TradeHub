@@ -4,40 +4,71 @@ import { v2 as cloudinary } from "cloudinary";
 // Create a new listing
 export const createListing = async (req, res) => {
   try {
-    const { type, title, description, condition, location, category } =
-      req.body;
-    const providerId = req.user._id;
-    const matchTypeEnum = type.toLowerCase();
-    let { images } = req.body; // Expecting an array of Base64 strings
+    const { title, description, location, category, price, images } = req.body;
+    let { type, condition, acceptsOtherPaymentForm } = req.body;
+    const seller = req.user._id;
 
-    if (!Array.isArray(images)) {
-      return res.status(400).json({ message: "Images should be an array" });
+    type = type.toLowerCase();
+    condition = condition.toLowerCase();
+    acceptsOtherPaymentForm = acceptsOtherPaymentForm.toLowerCase();
+
+    // Validate fields
+    if (!title || !description || !location || !category || !price) {
+      return res.status(400).json({
+        message:
+          "Missing required fields: title, description, location, category, and price",
+        data: req.body,
+      });
     }
 
-    // Upload each image to Cloudinary
-    const uploadedImages = await Promise.all(
-      images.map(async (image) => {
-        const result = await cloudinary.uploader.upload(image);
-        return result.secure_url; // Return the Cloudinary URL
-      })
-    );
+    if (typeof price !== "number") {
+      return res.status(400).json({ message: "Price should be a number" });
+    }
+
+    let validatedImages = [];
+    if (images) {
+      if (!Array.isArray(images)) {
+        return res.status(400).json({ message: "Images should be an array" });
+      }
+
+      // Validate each image format (assuming they're base64 strings)
+      const isValidImageFormat = images.every(
+        (image) => typeof image === "string" && image.startsWith("data:image")
+      );
+      if (!isValidImageFormat) {
+        return res
+          .status(400)
+          .json({ message: "Images should be valid base64 strings" });
+      }
+
+      // Upload each image to Cloudinary
+      validatedImages = await Promise.all(
+        images.map(async (image) => {
+          const result = await cloudinary.uploader.upload(image);
+          return result.secure_url;
+        })
+      );
+    }
 
     // Create listing
     const listing = new Listing({
-      providerId,
-      type: matchTypeEnum,
+      seller,
+      type,
       title,
       description,
-      images: uploadedImages, // Store all uploaded image URLs
+      images: validatedImages,
       condition,
       location,
       category,
+      price,
+      acceptsOtherPaymentForm: acceptsOtherPaymentForm || "none",
     });
 
     await listing.save();
 
     res.status(201).json({ message: "Listing created successfully", listing });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       message: "Error creating listing",
       error: error.message,
@@ -185,30 +216,28 @@ export const getListing = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // seller: first name, last name, username, profile image, date joined
-    // listing: type, title, description, images, condition, status (available/traded), price, tradeOptions, rating, reviews (reviewer first name, last name, username, profile image)
-    // location: name
-    // category: name
+    // Fetch the listing, populate seller, location, and category fields
     const listing = await Listing.findById(id)
-      .populate(
-        "providerId",
-        "firstName lastName username profileImg createdAt"
-      )
+      .populate("seller", "firstName lastName username profileImg createdAt")
+      .populate("location", "name") // Populate location to get name
+      .populate("category", "name") // Populate category to get name
       .lean();
 
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });
     }
 
-    // Extract provider details and flatten into the listing object
-    const { providerId, ...restListing } = listing;
+    // Extract seller, location, and category details, and flatten the listing object
+    const { seller, location, category, ...restListing } = listing;
     const flatListing = {
       ...restListing,
-      providerFirstName: providerId.firstName,
-      providerLastName: providerId.lastName,
-      providerUsername: providerId.username,
-      providerProfileImg: providerId.profileImg,
-      providerCreatedAt: providerId.createdAt,
+      providerFirstName: seller.firstName,
+      providerLastName: seller.lastName,
+      providerUsername: seller.username,
+      providerProfileImg: seller.profileImg,
+      providerCreatedAt: seller.createdAt,
+      location: location.name, // Replace location object with name
+      category: category.name, // Replace category object with name
     };
 
     res.status(200).json({ listing: flatListing });
