@@ -4,15 +4,16 @@ import toast from "react-hot-toast";
 
 const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
   const [currentFormData, setFormDataState] = useState({
-    firstName: user.firstName || formData.firstName || "",
-    lastName: user.lastName || formData.lastName || "",
-    bio: user.bio || formData.bio || "",
-    username: user.username || formData.username || "",
-    email: user.email || formData.email || "",
-    password: user.password || formData.password || "",
-    profileImg: user.profileImg || formData.profileImg || "",
-    coverImg: user.coverImg || formData.coverImg || "",
-    languages: user.languages || formData.languages || [],
+    firstName: user?.firstName || formData.firstName || "",
+    lastName: user?.lastName || formData.lastName || "",
+    bio: user?.bio || formData.bio || "",
+    username: user?.username || formData.username || "",
+    email: user?.email || formData.email || "",
+    password: user?.password || formData.password || "",
+    profileImg: user?.profileImg || formData.profileImg || "",
+    coverImg: user?.coverImg || formData.coverImg || "",
+    languages: user?.languages || formData.languages || [],
+    sellerStatus: true,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [formValid, setFormValid] = useState(false);
@@ -143,7 +144,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
               onChange={handleNameChange}
               placeholder="First Name"
               className="input input-bordered w-full"
-              disabled={user.firstName}
+              disabled={user?.firstName}
             />
             <input
               type="text"
@@ -152,7 +153,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
               onChange={handleNameChange}
               placeholder="Last Name"
               className="input input-bordered w-full"
-              disabled={user.lastName}
+              disabled={user?.lastName}
             />
           </div>
         </div>
@@ -160,7 +161,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
         {/* Cover Image Section */}
         <div className="relative group">
           <img
-            src={currentFormData.coverImg || "/cover.jpg"}
+            src={currentFormData.coverImg || "default-cover-image.jpg"}
             alt="Cover"
             className="w-full h-48 object-cover rounded-xl"
           />
@@ -186,7 +187,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <div className="relative">
               <img
-                src={currentFormData.profileImg || "/avatar.png"}
+                src={currentFormData.profileImg || "default-profile-image.png"}
                 alt="Profile"
                 className="w-32 h-32 rounded-full object-cover border-4 border-white"
               />
@@ -237,7 +238,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
             type="text"
             className={`input input-bordered w-full pl-10`}
             placeholder="Username"
-            disabled={user.username}
+            disabled={user?.username}
             value={currentFormData.username}
             onChange={(e) =>
               setFormDataState({ ...currentFormData, username: e.target.value })
@@ -253,7 +254,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
           <input
             type="email"
             name="email"
-            disabled={user.email}
+            disabled={user?.email}
             value={currentFormData.email}
             onChange={handleNameChange}
             placeholder="Your Email"
@@ -273,7 +274,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
                 <Lock className="size-5 text-base-content/40" />
               </div>
               <input
-                disabled={user.password}
+                disabled={user?.password}
                 type={showPassword ? "text" : "password"}
                 className={`input input-bordered w-full pl-10`}
                 placeholder="••••••••"
@@ -298,7 +299,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
                 <Lock className="size-5 text-base-content/40" />
               </div>
               <input
-                disabled={user.password}
+                disabled={user?.password}
                 type={showPassword ? "text" : "password"}
                 className={`input input-bordered w-full pl-10`}
                 placeholder="••••••••"

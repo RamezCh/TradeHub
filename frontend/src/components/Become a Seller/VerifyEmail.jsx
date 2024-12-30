@@ -19,6 +19,9 @@ const VerifyEmail = ({ email, resendVerificationEmail, isVerified }) => {
     };
 
     checkEmailVerification();
+    const intervalId = setInterval(checkEmailVerification, 10000);
+
+    return () => clearInterval(intervalId);
   }, [email, isVerified]);
 
   useEffect(() => {

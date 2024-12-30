@@ -5,7 +5,6 @@ import crypto from "crypto";
 import sendgridMail from "@sendgrid/mail";
 import dotenv from "dotenv";
 import cloudinary from "cloudinary";
-import { profile } from "console";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -165,6 +164,7 @@ export const login = async (req, res) => {
       coverImg: user.coverImg,
       bio: user.bio,
       sellerStatus: user.sellerStatus,
+      languages: user.languages,
     };
 
     res.status(200).json(userInfo);
