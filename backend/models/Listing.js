@@ -54,32 +54,12 @@ const listingSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: function () {
-        return !this.tradeOptions;
-      },
+      required: true,
     },
-    tradeOptions: {
-      type: [
-        {
-          type: {
-            type: String,
-            enum: [
-              "item",
-              "service",
-              "price+item",
-              "service+price",
-              "service+item",
-            ],
-            required: true,
-          },
-        },
-      ],
-      validate: {
-        validator: function (v) {
-          return this.price || (v && v.length > 0); // Ensure at least one of price or tradeOptions is provided
-        },
-        message: "Either price or tradeOptions must be provided.",
-      },
+    acceptsOtherPaymentForm: {
+      type: String,
+      enum: ["items", "services", "both", "none"],
+      default: "none", // Default to accepting only cash
     },
     rating: {
       type: Number,

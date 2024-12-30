@@ -12,6 +12,7 @@ import PublicProfile from "./pages/PublicProfile.jsx";
 import SettingsPage from "./pages/SettingsPage";
 import ListingPage from "./pages/ListingPage";
 import InboxPage from "./pages/InboxPage";
+import AddListing from "./pages/AddListing";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore.js";
 import { useThemeStore } from "./store/useThemeStore";
@@ -88,6 +89,7 @@ const App = () => {
         />
         <Route path="/profile/:username" element={<PublicProfile />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/listing/add" element={<AddListing />} />
         <Route path="/listing/:listingId" element={<ListingPage />} />
         <Route path="/listings/search" element={<SearchResultsPage />} />
         <Route
