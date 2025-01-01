@@ -102,6 +102,20 @@ export const useListingStore = create((set) => ({
     }
   },
 
+  // Update Listing
+  updateListing: async (id, listing) => {
+    try {
+      const response = await axiosInstance.put(`/listings/edit/${id}`, listing);
+      const data = response.data;
+
+      toast.success(data.message);
+      return data;
+    } catch (err) {
+      set({ error: "Error updating listing" });
+      toast.error("Error updating listing", err);
+    }
+  },
+
   // Reset the error state
   resetError: () => set({ error: null }),
 }));
