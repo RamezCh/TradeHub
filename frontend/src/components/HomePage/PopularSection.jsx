@@ -96,7 +96,7 @@ const PopularSection = ({ type }) => {
                     />
                   ))
               ) : (
-                <p className="w-full text-center">No Items Found</p>
+                <p className="w-full text-center">No Listings Found</p>
               )
             ) : (
               <ItemCardSkeleton />

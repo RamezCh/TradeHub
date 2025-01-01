@@ -44,7 +44,7 @@ const App = () => {
   }
 
   return (
-    <div data-theme={theme}>
+    <div data-theme={theme} className="flex flex-col min-h-screen">
       {authUser == null ? (
         <>
           <div className="hidden lg:block">
@@ -71,37 +71,39 @@ const App = () => {
         </>
       )}
       <div className="h-16 mb-2 bg-black bg-opacity-55"></div>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/signup"
-          element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
-        />
-        <Route path="/register-seller" element={<RegisterSellerPage />} />
-        <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
-        <Route
-          path="/login"
-          element={!authUser ? <LoginPage /> : <Navigate to="/" />}
-        />
-        <Route
-          path="/profile"
-          element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
-        />
-        <Route path="/profile/:username" element={<PublicProfile />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/listing/add" element={<AddListing />} />
-        <Route path="/listing/:listingId" element={<ListingPage />} />
-        <Route path="/listings/search" element={<SearchResultsPage />} />
-        <Route
-          path="/inbox"
-          element={authUser ? <InboxPage /> : <HomePage />}
-        />
-        <Route
-          path="/inbox/:username"
-          element={authUser ? <InboxPage /> : <HomePage />}
-        />
-        <Route path="/*" element={<ErrorPage />} />
-      </Routes>
+      <div className="flex-grow">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/signup"
+            element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
+          />
+          <Route path="/register-seller" element={<RegisterSellerPage />} />
+          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+          <Route
+            path="/login"
+            element={!authUser ? <LoginPage /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/profile"
+            element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
+          />
+          <Route path="/profile/:username" element={<PublicProfile />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/listing/add" element={<AddListing />} />
+          <Route path="/listing/:listingId" element={<ListingPage />} />
+          <Route path="/listings/search" element={<SearchResultsPage />} />
+          <Route
+            path="/inbox"
+            element={authUser ? <InboxPage /> : <HomePage />}
+          />
+          <Route
+            path="/inbox/:username"
+            element={authUser ? <InboxPage /> : <HomePage />}
+          />
+          <Route path="/*" element={<ErrorPage />} />
+        </Routes>
+      </div>
       <Footer />
 
       <Toaster />

@@ -173,23 +173,29 @@ export const getAllListings = async (req, res) => {
   try {
     const { page = 1, limit = 5, type = "all" } = req.query;
     const skip = (page - 1) * limit;
+
     let correctedType = type.toLowerCase();
     correctedType = correctedType !== "all" ? correctedType : "all";
     correctedType = correctedType.startsWith("ite") ? "item" : correctedType;
     correctedType = correctedType.startsWith("serv")
       ? "service"
       : correctedType;
+
     // Filter by type if specified, else fetch all types
     const filter =
       type !== "all"
         ? { type: correctedType, status: "available" }
         : { status: "available" };
 
-    // Fetch listings with pagination and type filtering
+    // Fetch listings with pagination, type filtering, and population of fields
     const listings = await Listing.find(filter)
-      .sort({ createdAt: -1 }) // Sort by creation date
+      .populate("seller", "firstName lastName username profileImg createdAt")
+      .populate("location", "name")
+      .populate("category", "name")
+      .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .lean();
 
     const totalListings = await Listing.countDocuments(filter);
 
@@ -197,17 +203,31 @@ export const getAllListings = async (req, res) => {
       return res.status(200).json({ message: "No listings found" });
     }
 
+    // Flatten the populated fields for each listing
+    const flatListings = listings.map(
+      ({ seller, location, category, ...rest }) => ({
+        ...rest,
+        providerFirstName: seller?.firstName || null,
+        providerLastName: seller?.lastName || null,
+        providerUsername: seller?.username || null,
+        providerProfileImg: seller?.profileImg || null,
+        providerCreatedAt: seller?.createdAt || null,
+        location: location?.name || null,
+        category: category?.name || null,
+      })
+    );
+
     const totalPages = Math.ceil(totalListings / limit);
 
     res.status(200).json({
-      listings,
+      listings: flatListings,
       totalListings,
       totalPages,
     });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error fetching services", error: error.message });
+      .json({ message: "Error fetching listings", error: error.message });
   }
 };
 

@@ -26,8 +26,13 @@ export const getUsersForSidebar = async (req, res) => {
 
 export const getMessages = async (req, res) => {
   try {
-    const { id: userToChatId } = req.params;
+    const username = req.params.username;
     const myId = req.user._id;
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const userToChatId = user._id;
 
     const messages = await Message.find({
       $or: [
@@ -35,6 +40,12 @@ export const getMessages = async (req, res) => {
         { senderId: userToChatId, receiverId: myId },
       ],
     });
+
+    if (!messages.length) {
+      return res
+        .status(200)
+        .json({ message: "No messages found", messages: [] });
+    }
 
     // Mark messages as read
     await Promise.all(
@@ -56,8 +67,15 @@ export const getMessages = async (req, res) => {
 export const sendMessage = async (req, res) => {
   try {
     const { text, image } = req.body;
-    const { id: receiverId } = req.params;
+    const { username } = req.params;
     const senderId = req.user._id;
+
+    const receiver = await User.findOne({ username });
+    if (!receiver) {
+      return res.status(404).json({ error: "Receiver not found" });
+    }
+
+    const receiverId = receiver._id;
 
     let imageUrl;
     if (image) {
