@@ -19,12 +19,21 @@ const SellerRegistration = () => {
     sellerStatus: true,
   });
 
-  const { signup, authUser } = useAuthStore();
+  const { signup, authUser, becomeSeller } = useAuthStore();
   const { resendVerificationEmail, isVerified } = useVerificationStore();
 
   const handleNextStep = async () => {
     try {
       await signup(formData);
+      setStepCount(2);
+    } catch (error) {
+      console.error("Signup failed:", error);
+    }
+  };
+
+  const handleNextStepExistingUser = async () => {
+    try {
+      await becomeSeller(formData);
       setStepCount(2);
     } catch (error) {
       console.error("Signup failed:", error);
@@ -47,6 +56,7 @@ const SellerRegistration = () => {
           setFormData={setFormData}
           formData={formData}
           setStepCount={handleNextStep}
+          handleNextStepExistingUser={handleNextStepExistingUser}
           user={authUser}
         />
       )}

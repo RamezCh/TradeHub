@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { Camera, Trash, Eye, EyeOff, User, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 
-const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
+const PersonalInfo = ({
+  formData,
+  setFormData,
+  setStepCount,
+  user,
+  handleNextStepExistingUser,
+}) => {
   const [currentFormData, setFormDataState] = useState({
     firstName: user?.firstName || formData.firstName || "",
     lastName: user?.lastName || formData.lastName || "",
@@ -13,6 +19,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
     profileImg: user?.profileImg || formData.profileImg || "",
     coverImg: user?.coverImg || formData.coverImg || "",
     languages: user?.languages || formData.languages || [],
+    confirmPassword: formData.confirmPassword || "",
     sellerStatus: true,
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -119,7 +126,7 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
       return;
     }
     setFormData(currentFormData);
-    setStepCount();
+    user ? handleNextStepExistingUser() : setStepCount();
   };
 
   return (
@@ -263,69 +270,70 @@ const PersonalInfo = ({ formData, setFormData, setStepCount, user }) => {
         </div>
 
         {/* Password and Confirm Password */}
-        <div className="flex justify-between mb-6">
-          {/* Password */}
-          <div className="form-control w-1/2 mr-2">
-            <label className="label">
-              <span className="label-text font-medium">Password</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="size-5 text-base-content/40" />
+        {!user && (
+          <div className="flex justify-between mb-6">
+            {/* Password */}
+            <div className="form-control w-1/2 mr-2">
+              <label className="label">
+                <span className="label-text font-medium">Password</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="size-5 text-base-content/40" />
+                </div>
+                <input
+                  disabled={user?.password}
+                  type={showPassword ? "text" : "password"}
+                  className={`input input-bordered w-full pl-10`}
+                  placeholder="••••••••"
+                  value={currentFormData.password}
+                  onChange={(e) =>
+                    setFormDataState({
+                      ...currentFormData,
+                      password: e.target.value,
+                    })
+                  }
+                />
               </div>
-              <input
-                disabled={user?.password}
-                type={showPassword ? "text" : "password"}
-                className={`input input-bordered w-full pl-10`}
-                placeholder="••••••••"
-                value={currentFormData.password}
-                onChange={(e) =>
-                  setFormDataState({
-                    ...currentFormData,
-                    password: e.target.value,
-                  })
-                }
-              />
+            </div>
+
+            {/* Confirm Password */}
+            <div className="form-control w-1/2 ml-2 mb-5">
+              <label className="label">
+                <span className="label-text font-medium">Confirm Password</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="size-5 text-base-content/40" />
+                </div>
+                <input
+                  disabled={user?.password}
+                  type={showPassword ? "text" : "password"}
+                  className={`input input-bordered w-full pl-10`}
+                  placeholder="••••••••"
+                  value={currentFormData.confirmPassword}
+                  onChange={(e) =>
+                    setFormDataState({
+                      ...currentFormData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-5 text-base-content/40" />
+                  ) : (
+                    <Eye className="size-5 text-base-content/40" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-
-          {/* Confirm Password */}
-          <div className="form-control w-1/2 ml-2 mb-5">
-            <label className="label">
-              <span className="label-text font-medium">Confirm Password</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="size-5 text-base-content/40" />
-              </div>
-              <input
-                disabled={user?.password}
-                type={showPassword ? "text" : "password"}
-                className={`input input-bordered w-full pl-10`}
-                placeholder="••••••••"
-                value={currentFormData.confirmPassword}
-                onChange={(e) =>
-                  setFormDataState({
-                    ...currentFormData,
-                    confirmPassword: e.target.value,
-                  })
-                }
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="size-5 text-base-content/40" />
-                ) : (
-                  <Eye className="size-5 text-base-content/40" />
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
+        )}
         {/* Language Section */}
         <div className="space-y-4">
           <label className="block font-medium">

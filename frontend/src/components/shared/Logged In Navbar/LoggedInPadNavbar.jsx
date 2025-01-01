@@ -57,6 +57,7 @@ const LoggedInPadNavbar = () => {
                 <Link
                   to="/register-seller"
                   className="btn btn-ghost w-full text-left text-sm"
+                  onClick={toggleMenu}
                 >
                   Become a Seller
                 </Link>

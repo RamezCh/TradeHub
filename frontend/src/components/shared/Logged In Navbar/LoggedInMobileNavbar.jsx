@@ -13,6 +13,10 @@ const LoggedInMobileNavbar = () => {
     setMenuOpen(!menuOpen);
   };
 
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
   return (
     <header className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 backdrop-blur-lg bg-base-100/80">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -20,6 +24,7 @@ const LoggedInMobileNavbar = () => {
         <Link
           to="/"
           className="flex items-center gap-2.5 hover:opacity-80 transition-all"
+          onClick={closeMenu}
         >
           <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
             <ChartCandlestick className="w-5 h-5 text-primary" />
@@ -50,7 +55,7 @@ const LoggedInMobileNavbar = () => {
                 <Link
                   to="/listing/add"
                   className="btn btn-primary w-full text-left text-sm"
-                  onClick={toggleMenu}
+                  onClick={closeMenu}
                 >
                   Add Listing
                 </Link>
@@ -59,6 +64,7 @@ const LoggedInMobileNavbar = () => {
                 <Link
                   to="/register-seller"
                   className="btn btn-ghost w-full text-left text-sm"
+                  onClick={closeMenu}
                 >
                   Become a Seller
                 </Link>
@@ -66,7 +72,7 @@ const LoggedInMobileNavbar = () => {
               <Link
                 to="/settings"
                 className="btn btn-ghost w-full text-left text-sm"
-                onClick={toggleMenu}
+                onClick={closeMenu}
               >
                 Theme
               </Link>
@@ -74,7 +80,7 @@ const LoggedInMobileNavbar = () => {
                 <Link
                   to="/profile"
                   className="btn btn-ghost w-full text-left text-sm"
-                  onClick={toggleMenu}
+                  onClick={closeMenu}
                 >
                   Profile
                 </Link>
@@ -86,7 +92,7 @@ const LoggedInMobileNavbar = () => {
                 <Link
                   to="/inbox"
                   className="btn btn-ghost w-auto"
-                  onClick={toggleMenu}
+                  onClick={closeMenu}
                 >
                   <MessageSquare className="w-5 h-5" />
                 </Link>
@@ -95,7 +101,7 @@ const LoggedInMobileNavbar = () => {
                     className="btn btn-ghost w-auto"
                     onClick={() => {
                       logout();
-                      toggleMenu();
+                      closeMenu();
                     }}
                   >
                     <LogOut className="w-5 h-5" />

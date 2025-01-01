@@ -137,6 +137,136 @@ export const signup = async (req, res) => {
   }
 };
 
+export const becomeSeller = async (req, res) => {
+  try {
+    // Check if the user is authenticated
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const {
+      firstName,
+      lastName,
+      email,
+      bio,
+      sellerStatus = false,
+      languages = [],
+    } = req.body;
+
+    let { profileImg, coverImg, username } = req.body;
+    const userId = req.user._id;
+
+    // Fetch the existing user
+    const existingUser = await User.findById(userId);
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    // Check for an existing user with this username or email
+    const existingUsername = await User.findOne({ username });
+    if (
+      existingUsername &&
+      existingUsername._id.toString() !== userId.toString()
+    ) {
+      return res.status(400).json({ error: "Username is already taken" });
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail && existingEmail._id.toString() !== userId.toString()) {
+      return res.status(400).json({ error: "Email is already taken" });
+    }
+
+    // Validate seller languages if sellerStatus is true
+    if (sellerStatus && (!languages || languages.length === 0)) {
+      return res.status(400).json({
+        error: "Sellers must provide at least one language.",
+      });
+    }
+
+    const formattedLanguages = languages.map((lang) => ({
+      name:
+        lang.name.charAt(0).toUpperCase() + lang.name.slice(1).toLowerCase(),
+      level: lang.level.toLowerCase(),
+    }));
+
+    // Update profile image if provided
+    if (profileImg) {
+      try {
+        // Extract image ID from the existing URL
+        if (existingUser.profileImg) {
+          const imageId = existingUser.profileImg
+            .split("/")
+            .pop()
+            .split(".")[0];
+          await cloudinary.uploader.destroy(imageId); // Destroy the old image
+        }
+
+        // Upload new image to Cloudinary
+        const uploadedResponse = await cloudinary.uploader.upload(profileImg);
+        profileImg = uploadedResponse.secure_url; // Use the new URL
+      } catch (error) {
+        console.error("Error uploading profile image:", error.message);
+        return res.status(500).json({ error: "Profile image upload failed" });
+      }
+    }
+
+    // Update cover image if provided
+    if (coverImg) {
+      try {
+        // Extract image ID from the existing URL
+        if (existingUser.coverImg) {
+          const imageId = existingUser.coverImg.split("/").pop().split(".")[0];
+          await cloudinary.uploader.destroy(imageId); // Destroy the old image
+        }
+
+        // Upload new image to Cloudinary
+        const uploadedResponse = await cloudinary.uploader.upload(coverImg);
+        coverImg = uploadedResponse.secure_url; // Use the new URL
+      } catch (error) {
+        console.error("Error uploading cover image:", error.message);
+        return res.status(500).json({ error: "Cover image upload failed" });
+      }
+    }
+
+    // Update user information in the database
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        firstName,
+        lastName,
+        username,
+        email,
+        bio,
+        sellerStatus,
+        languages: sellerStatus ? formattedLanguages : existingUser.languages,
+        profileImg: profileImg || existingUser.profileImg,
+        coverImg: coverImg || existingUser.coverImg,
+      },
+      { new: true }
+    );
+
+    // Respond with the updated user data
+    res.status(200).json({
+      _id: updatedUser._id,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      sellerStatus: updatedUser.sellerStatus,
+      message: "User information updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error in update controller:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
