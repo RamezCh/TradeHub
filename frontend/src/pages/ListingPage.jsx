@@ -35,6 +35,7 @@ const ListingPage = () => {
     location,
     category,
     type,
+    acceptsOtherPaymentForm,
     _id: doNotMatchID,
   } = listing;
 
@@ -70,6 +71,7 @@ const ListingPage = () => {
           condition={condition}
           category={category}
           location={location}
+          otherPaymentForms={acceptsOtherPaymentForm}
         />
       </div>
 

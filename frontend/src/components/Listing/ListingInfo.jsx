@@ -1,6 +1,12 @@
-import { MapPin, Info, List } from "lucide-react";
+import { MapPin, Info, List, HandCoins } from "lucide-react";
 
-const ListingInfo = ({ description, condition, location, category }) => {
+const ListingInfo = ({
+  description,
+  condition,
+  location,
+  category,
+  otherPaymentForms,
+}) => {
   const infoItems = [
     {
       icon: <Info className="text-secondary w-6 h-6" />,
@@ -21,6 +27,11 @@ const ListingInfo = ({ description, condition, location, category }) => {
       icon: <List className="text-secondary w-6 h-6" />,
       title: "Category",
       content: category,
+    },
+    {
+      icon: <HandCoins className="text-secondary w-6 h-6" />,
+      title: "Other Payment Forms",
+      content: otherPaymentForms,
     },
   ];
 
