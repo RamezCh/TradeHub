@@ -1,4 +1,5 @@
 import Category from "../models/Category.js";
+import { createAudit } from "../lib/createAudit.js";
 
 export const createCategory = async (req, res) => {
   try {
@@ -14,6 +15,13 @@ export const createCategory = async (req, res) => {
     const category = new Category({ name });
     await category.save();
 
+    await createAudit(
+      "Created",
+      "category",
+      category._id,
+      req.user._id,
+      `Category ${name} created`
+    );
     res.status(201).json({ category });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -44,6 +52,13 @@ export const renameCategory = async (req, res) => {
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
     }
+    await createAudit(
+      "Edited",
+      "category",
+      id,
+      req.user._id,
+      `Category renamed to ${name}`
+    );
     res.status(200).json({ category });
   } catch (error) {
     res.status(500).json({ error: error.message });

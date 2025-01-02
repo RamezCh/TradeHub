@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import crypto from "crypto";
 import sendgridMail from "@sendgrid/mail";
+import { createAudit } from "../lib/createAudit.js";
 
 sendgridMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -17,6 +18,13 @@ export const verifyEmail = async (req, res) => {
     user.verificationToken = null;
     await user.save();
 
+    await createAudit(
+      "Verified",
+      "user",
+      user._id,
+      user._id,
+      "User verified email address"
+    );
     res
       .status(200)
       .json({ verified: true, message: "Email verified successfully" });

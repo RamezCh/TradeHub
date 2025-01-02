@@ -11,12 +11,15 @@ const auditSchema = new mongoose.Schema(
         "Deleted",
         "Edited",
         "Reviewed",
+        "Logged In",
+        "Logged Out",
+        "Verified",
       ],
       required: true,
     },
     targetType: {
       type: String,
-      enum: ["listing", "user"],
+      enum: ["listing", "user", "category", "location", "review", "offer"],
       required: true,
     },
     targetId: {

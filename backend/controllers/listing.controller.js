@@ -1,5 +1,6 @@
 import Listing from "../models/Listing.js";
 import { v2 as cloudinary } from "cloudinary";
+import { createAudit } from "../lib/createAudit.js";
 
 // Create a new listing
 export const createListing = async (req, res) => {
@@ -66,6 +67,15 @@ export const createListing = async (req, res) => {
 
     await listing.save();
 
+    // Create an audit log for the created listing
+    await createAudit(
+      "Created",
+      "listing",
+      listing._id,
+      seller,
+      `Listing created with title: ${title}`
+    );
+
     res.status(201).json({ message: "Listing created successfully", listing });
   } catch (error) {
     console.error(error);
@@ -108,6 +118,14 @@ export const editListing = async (req, res) => {
       return res.status(404).json({ message: "Listing not found" });
     }
 
+    // Create an audit log for the edited listing
+    await createAudit(
+      "Edited",
+      "listing",
+      updatedListing._id,
+      req.user._id,
+      `Listing edited with title: ${updatedListing.title}`
+    );
     res
       .status(200)
       .json({ message: "Listing updated successfully", updatedListing });
@@ -160,6 +178,14 @@ export const deleteListing = async (req, res) => {
       await cloudinary.uploader.destroy(`tradehub/listings/${publicId}`);
     }
 
+    // Create an audit log for the deleted listing
+    await createAudit(
+      "Deleted",
+      "listing",
+      listing._id,
+      req.user._id,
+      `Listing deleted with title: ${listing.title}`
+    );
     res.status(200).json({ message: "Listing deleted successfully" });
   } catch (error) {
     res

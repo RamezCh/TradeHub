@@ -5,6 +5,8 @@ import crypto from "crypto";
 import sendgridMail from "@sendgrid/mail";
 import dotenv from "dotenv";
 import cloudinary from "cloudinary";
+import { createAudit } from "../lib/createAudit.js";
+import { create } from "domain";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -284,6 +286,8 @@ export const login = async (req, res) => {
 
     generateTokenAndSetCookie(user._id, res);
 
+    createAudit("Logged In", "user", user._id, user._id, "User logged in");
+
     const userInfo = {
       _id: user._id,
       firstName: user.firstName,
@@ -306,6 +310,13 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
+    await createAudit(
+      "Logged Out",
+      "user",
+      req.user._id,
+      req.user._id,
+      "User logged out"
+    );
     res.cookie("jwt", "", { maxAge: 0 });
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
