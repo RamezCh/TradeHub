@@ -62,6 +62,15 @@ const LoggedInPadNavbar = () => {
                   Become a Seller
                 </Link>
               )}
+              {authUser && authUser.sellerStatus && (
+                <Link
+                  to="/listings/mine"
+                  className="btn btn-ghost w-full text-left text-sm"
+                  onClick={toggleMenu}
+                >
+                  My Listings
+                </Link>
+              )}
               <Link
                 to="/settings"
                 className="btn btn-ghost w-full text-left text-sm"

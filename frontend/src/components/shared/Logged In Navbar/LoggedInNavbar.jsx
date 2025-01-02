@@ -77,6 +77,15 @@ const LoggedInNavbar = () => {
                     >
                       Profile
                     </Link>
+                    {authUser && authUser.sellerStatus && (
+                      <Link
+                        to="/listings/mine"
+                        className="flex items-center gap-2 p-2 text-xl text-gray-800 hover:bg-gray-100 rounded-md"
+                        onClick={closeDropdown}
+                      >
+                        My Listings
+                      </Link>
+                    )}
                     <Link
                       to="/inbox"
                       className="flex items-center gap-2 p-2 text-xl text-gray-800 hover:bg-gray-100 rounded-md"

@@ -88,7 +88,7 @@ const ListingCardOwner = ({ listing, onDelete }) => {
             </button>
             <button
               className="btn btn-error btn-sm"
-              onClick={() => setIsModalOpen(true)} // Open modal when delete is clicked
+              onClick={() => setIsModalOpen(true)}
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Delete

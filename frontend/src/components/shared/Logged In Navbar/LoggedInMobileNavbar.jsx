@@ -85,6 +85,15 @@ const LoggedInMobileNavbar = () => {
                   Profile
                 </Link>
               )}
+              {authUser && authUser.sellerStatus && (
+                <Link
+                  to="/listings/mine"
+                  className="btn btn-ghost w-auto"
+                  onClick={closeMenu}
+                >
+                  My Listings
+                </Link>
+              )}
               <div className="flex items-center justify-around py-2">
                 {authUser && (
                   <NotificationDropdown isAuthenticated={authUser} />
