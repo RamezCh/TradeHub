@@ -116,6 +116,35 @@ export const useListingStore = create((set) => ({
     }
   },
 
+  // Get My Listings
+  getMyListings: async () => {
+    try {
+      set({ isLoadingListing: true });
+      const response = await axiosInstance.get("/listings/mine");
+      const data = response.data;
+      return data.listings;
+    } catch (err) {
+      set({ error: "Error fetching my listings" });
+      toast.error("Error fetching my listings", err);
+    } finally {
+      set({ isLoadingListing: false });
+    }
+  },
+
+  // Delete Listing
+  deleteListing: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`/listings/delete/${id}`);
+      const data = response.data;
+
+      toast.success(data.message);
+      return data;
+    } catch (err) {
+      set({ error: "Error deleting listing" });
+      toast.error("Error deleting listing", err);
+    }
+  },
+
   // Reset the error state
   resetError: () => set({ error: null }),
 }));

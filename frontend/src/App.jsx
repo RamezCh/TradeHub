@@ -25,6 +25,7 @@ import MobileNavbar from "./components/shared/Navbar/MobileNavbar.jsx";
 import PadNavbar from "./components/shared/Navbar/PadNavbar.jsx";
 import RegisterSellerPage from "./pages/RegisterSellerPage.jsx";
 import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
+import MyListingsPage from "./pages/MyListingsPage.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -96,6 +97,7 @@ const App = () => {
             path="/listing/edit/:listingId"
             element={<EditListingPage />}
           />
+          <Route path="/listings/mine" element={<MyListingsPage />} />
           <Route path="/listing/:listingId" element={<ListingPage />} />
           <Route path="/listings/search" element={<SearchResultsPage />} />
           <Route

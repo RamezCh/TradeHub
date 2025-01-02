@@ -287,6 +287,37 @@ export const getListingsByProvider = async (req, res) => {
   }
 };
 
+// Get My Listings
+export const getMyListings = async (req, res) => {
+  try {
+    const listings = await Listing.find({ seller: req.user._id })
+      .populate("location", "name")
+      .populate("category", "name")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (listings.length === 0) {
+      return res.status(404).json({ message: "No listings found" });
+    }
+
+    const formattedListings = listings.map((listing) => {
+      const { location, category, ...restListing } = listing;
+      return {
+        ...restListing,
+        location: location?.name || null,
+        category: category?.name || null,
+      };
+    });
+
+    res.status(200).json({ listings: formattedListings });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching listings",
+      error: error.message,
+    });
+  }
+};
+
 // Search for listings
 export const searchListings = async (req, res) => {
   try {
