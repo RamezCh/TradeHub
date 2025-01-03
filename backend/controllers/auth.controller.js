@@ -276,6 +276,7 @@ export const login = async (req, res) => {
     if (user.isLocked()) {
       return res.status(401).json({
         error: "Your account is locked. Please try again later.",
+        lockUntil: user.lockUntil,
       });
     }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,7 +12,29 @@ const LoginPage = () => {
     password: "",
   });
   const [wantReset, setWantReset] = useState(false);
-  const { login, isLoggingIn, forgotPassword } = useAuthStore();
+  const { login, isLoggingIn, forgotPassword, lockTimeRemaining } =
+    useAuthStore();
+
+  // State for timer countdown
+  const [timer, setTimer] = useState(lockTimeRemaining);
+
+  useEffect(() => {
+    // Start the countdown if there's remaining lock time
+    if (lockTimeRemaining > 0) {
+      setTimer(lockTimeRemaining);
+      const intervalId = setInterval(() => {
+        setTimer((prevTime) => {
+          const newTime = Math.max(0, prevTime - 1); // Decrease by 1 second
+          if (newTime === 0) {
+            clearInterval(intervalId); // Stop the timer when it reaches 0
+          }
+          return newTime;
+        });
+      }, 1000);
+
+      return () => clearInterval(intervalId); // Cleanup on unmount or when lockTimeRemaining changes
+    }
+  }, [lockTimeRemaining]); // Dependency on lockTimeRemaining to trigger when it changes
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -146,42 +168,37 @@ const LoginPage = () => {
               <button
                 type="submit"
                 className="btn btn-primary w-full"
-                disabled={isLoggingIn}
+                disabled={isLoggingIn || lockTimeRemaining > 0}
               >
-                {isLoggingIn ? (
+                {lockTimeRemaining > 0 ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    Loading...
+                    Please wait {timer} seconds
+                  </>
+                ) : isLoggingIn ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Logging In...
                   </>
                 ) : (
-                  "Sign in"
+                  "Log In"
                 )}
               </button>
-            </form>
-          )}
 
-          {!wantReset && (
-            <div className="text-center">
-              <p className="text-base-content/60">
-                Don&apos;t have an account?{" "}
+              <div className="text-center mt-4">
                 <Link to="/signup" className="link link-primary">
-                  Create account
+                  Don’t have an account? Sign up
                 </Link>
-              </p>
-            </div>
+              </div>
+            </form>
           )}
         </div>
       </div>
 
-      {/* Right Side - Image/Pattern */}
-      <AuthImagePattern
-        title={wantReset ? "Reset Your Password" : "Welcome back!"}
-        subtitle={
-          wantReset
-            ? "Provide your email to receive a password reset link."
-            : "Sign in to continue your conversations and catch up with your messages."
-        }
-      />
+      {/* Right Side - Image or Pattern */}
+      <div className="hidden lg:block w-full bg-cover">
+        <AuthImagePattern />
+      </div>
     </div>
   );
 };

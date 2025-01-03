@@ -15,6 +15,7 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   onlineUsers: [],
   socket: null,
+  lockTimeRemaining: null,
 
   checkAuth: async () => {
     try {
@@ -64,12 +65,23 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/login", data);
-      set({ authUser: res.data });
+      set({ authUser: res.data, lockTimeRemaining: null });
       toast.success("Logged in successfully");
-
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response.data.error);
+      if (error.response && error.response.data.lockUntil) {
+        const lockUntil = new Date(error.response.data.lockUntil);
+        const currentTime = new Date();
+        const lockTimeRemaining = Math.max(
+          0,
+          Math.floor((lockUntil - currentTime) / 1000)
+        );
+        set({ lockTimeRemaining });
+        console.log("lockTimeRemaining:", lockTimeRemaining);
+        toast.error(error.response.data.error);
+      } else {
+        toast.error(error.response.data.error);
+      }
     } finally {
       set({ isLoggingIn: false });
     }
