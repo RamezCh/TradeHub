@@ -93,6 +93,17 @@ const listingSchema = new mongoose.Schema(
     ],
   },
   {
+    approvalStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    rejectionReason: {
+      type: String,
+      maxlength: [500, "Rejection reason cannot exceed 500 characters"],
+    },
+  },
+  {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
   }
 );

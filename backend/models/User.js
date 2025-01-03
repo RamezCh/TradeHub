@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -41,13 +42,51 @@ const userSchema = new mongoose.Schema(
         type: { type: String, enum: ["item", "service"], required: true },
       },
     ],
+    loginAttempts: {
+      type: Number,
+      default: 0,
+    },
+    lockUntil: {
+      type: Date,
+    },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
+userSchema.methods.isLocked = function () {
+  return this.lockUntil && this.lockUntil > Date.now();
+};
 
-export default User;
+userSchema.methods.incrementLoginAttempts = function () {
+  if (this.lockUntil && this.lockUntil < Date.now()) {
+    this.loginAttempts = 1;
+    this.lockUntil = undefined;
+  } else {
+    this.loginAttempts += 1;
+    if (this.loginAttempts >= 3) {
+      this.lockUntil = Date.now() + 5 * 60 * 1000;
+    }
+  }
+  return this.save();
+};
+
+userSchema.methods.generatePasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  this.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+
+  return resetToken;
+};
 
 userSchema.pre("save", function (next) {
   if (this.sellerStatus && (!this.languages || this.languages.length === 0)) {
@@ -55,3 +94,7 @@ userSchema.pre("save", function (next) {
   }
   next();
 });
+
+const User = mongoose.model("User", userSchema);
+
+export default User;

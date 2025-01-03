@@ -1,20 +1,12 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-  Mail,
-  MessageSquare,
-  User,
-} from "lucide-react";
+import { Loader2, Mail, MessageSquare, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import AuthImagePattern from "../components/AuthImagePattern";
 import toast from "react-hot-toast";
+import PasswordInput from "../components/shared/PasswordInput";
 
 const SignUpPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     firstName: "",
@@ -26,6 +18,8 @@ const SignUpPage = () => {
   });
 
   const { signup, isSigningUp } = useAuthStore();
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateForm = () => {
     if (!formData.username.trim()) return toast.error("Username is required");
@@ -62,10 +56,7 @@ const SignUpPage = () => {
           {/* LOGO */}
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
-              <div
-                className="size-12 rounded-xl bg-primary/10 flex items-center justify-center 
-              group-hover:bg-primary/20 transition-colors"
-              >
+              <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                 <MessageSquare className="size-6 text-primary" />
               </div>
               <h1 className="text-2xl font-bold mt-2">Create Account</h1>
@@ -110,6 +101,7 @@ const SignUpPage = () => {
                   />
                 </div>
               </div>
+
               {/* Username */}
               <label className="label">
                 <span className="label-text font-medium">Username</span>
@@ -152,64 +144,29 @@ const SignUpPage = () => {
             </div>
 
             {/* Password and Confirm Password */}
-            <div className="flex justify-between mb-6">
+            <div className="flex justify-between gap-2 mb-6">
               {/* Password */}
-              <div className="form-control w-1/2 mr-2">
-                <label className="label">
-                  <span className="label-text font-medium">Password</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="size-5 text-base-content/40" />
-                  </div>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className={`input input-bordered w-full pl-10`}
-                    placeholder="••••••••"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-
+              <PasswordInput
+                label="Password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                placeholder="••••••••"
+                showPassword={showPassword}
+                togglePasswordVisibility={() => setShowPassword(!showPassword)}
+              />
               {/* Confirm Password */}
-              <div className="form-control w-1/2 ml-2 mb-5">
-                <label className="label">
-                  <span className="label-text font-medium">
-                    Confirm Password
-                  </span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="size-5 text-base-content/40" />
-                  </div>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className={`input input-bordered w-full pl-10`}
-                    placeholder="••••••••"
-                    value={formData.confirmPassword}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        confirmPassword: e.target.value,
-                      })
-                    }
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="size-5 text-base-content/40" />
-                    ) : (
-                      <Eye className="size-5 text-base-content/40" />
-                    )}
-                  </button>
-                </div>
-              </div>
+              <PasswordInput
+                label="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmPassword: e.target.value })
+                }
+                placeholder="••••••••"
+                showPassword={showPassword}
+                togglePasswordVisibility={() => setShowPassword(!showPassword)}
+              />
             </div>
 
             {/* Submit Button */}
@@ -241,7 +198,6 @@ const SignUpPage = () => {
       </div>
 
       {/* right side */}
-
       <AuthImagePattern
         title="Join our community"
         subtitle="Connect with friends, share moments, and stay in touch with your loved ones."

@@ -6,6 +6,7 @@ import Footer from "./components/shared/Footer";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import ErrorPage from "./pages/ErrorPage";
 import ProfilePage from "./pages/ProfilePage";
 import PublicProfile from "./pages/PublicProfile.jsx";
@@ -85,6 +86,10 @@ const App = () => {
           <Route
             path="/login"
             element={!authUser ? <LoginPage /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
           />
           <Route
             path="/profile"

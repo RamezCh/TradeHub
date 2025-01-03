@@ -99,6 +99,24 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  forgotPassword: async (email) => {
+    try {
+      await axiosInstance.post("/auth/forgot-password", { email });
+      toast.success("Password reset email sent");
+    } catch (error) {
+      toast.error(error.response.data.error);
+    }
+  },
+
+  resetPassword: async (data) => {
+    try {
+      await axiosInstance.post(`/auth/reset-password/${data.token}`, data);
+      toast.success("Password reset successfully");
+    } catch (error) {
+      toast.error(error.response.data.error);
+    }
+  },
+
   connectSocket: () => {
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;

@@ -6,7 +6,6 @@ import sendgridMail from "@sendgrid/mail";
 import dotenv from "dotenv";
 import cloudinary from "cloudinary";
 import { createAudit } from "../lib/createAudit.js";
-import { create } from "domain";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -273,6 +272,14 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
+
+    if (user.isLocked()) {
+      return res.status(401).json({
+        error:
+          "Your account is locked. Please try again later, perhaps after 5 minutes.",
+      });
+    }
+
     const isPasswordCorrect = await bcrypt.compare(
       password,
       user?.password || ""
@@ -301,6 +308,10 @@ export const login = async (req, res) => {
       languages: user.languages,
     };
 
+    user.loginAttempts = 0;
+    user.lockUntil = undefined;
+    await user.save();
+
     res.status(200).json(userInfo);
   } catch (error) {
     console.error("Error in login controller:", error.message);
@@ -323,6 +334,78 @@ export const logout = async (req, res) => {
     console.error("Error in logout controller:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Generate the reset token
+    const resetToken = user.generatePasswordResetToken();
+    await user.save();
+
+    // Create the reset URL
+    const resetUrl = `${process.env.CORS_ORIGIN}/reset-password/${resetToken}`;
+
+    // Create the email content
+    const msg = {
+      to: email,
+      from: process.env.SENDER_EMAIL,
+      subject: "Password Reset Request",
+      html: `
+        <p>Hello, ${user.firstName} ${user.lastName},</p>
+        <p>You requested a password reset. Please click the link below to reset your password:</p>
+        <a href="${resetUrl}">Reset Password</a>
+        <p>This link will expire in 15 minutes.</p>
+        <p>If you did not request this, please ignore this email.</p>
+      `,
+    };
+
+    // Send the email
+    await sendgridMail.send(msg);
+
+    res.status(200).json({
+      message: "Password reset email sent. Please check your inbox.",
+    });
+  } catch (error) {
+    console.error("Error in forgotPassword controller:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  // Hash the token to match the stored hash
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() }, // Ensure the token hasn't expired
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid or expired token" });
+  }
+
+  // Update the password
+  const salt = await bcrypt.genSalt(12);
+  user.password = await bcrypt.hash(password, salt);
+
+  // Clear the reset token fields
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+
+  await user.save();
+
+  res.status(200).json({ message: "Password reset successful" });
 };
 
 export const checkAuth = async (req, res) => {
