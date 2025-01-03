@@ -10,6 +10,7 @@ export const useAuthStore = create((set, get) => ({
   authUser: null,
   isSigningUp: false,
   isLoggingIn: false,
+  isResetingPassword: false,
   isUpdatingProfile: false,
   isCheckingAuth: true,
   onlineUsers: [],
@@ -110,10 +111,14 @@ export const useAuthStore = create((set, get) => ({
 
   resetPassword: async (data) => {
     try {
+      set({ isResetingPassword: true });
       await axiosInstance.post(`/auth/reset-password/${data.token}`, data);
       toast.success("Password reset successfully");
+      return { success: true };
     } catch (error) {
       toast.error(error.response.data.error);
+    } finally {
+      set({ isResetingPassword: false });
     }
   },
 
