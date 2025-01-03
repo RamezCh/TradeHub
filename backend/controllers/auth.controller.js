@@ -275,8 +275,7 @@ export const login = async (req, res) => {
 
     if (user.isLocked()) {
       return res.status(401).json({
-        error:
-          "Your account is locked. Please try again later, perhaps after 5 minutes.",
+        error: "Your account is locked. Please try again later.",
       });
     }
 
@@ -285,7 +284,14 @@ export const login = async (req, res) => {
       user?.password || ""
     );
 
-    if (!user || !isPasswordCorrect) {
+    if (!user) {
+      return res.status(400).json({
+        error: "Invalid email or password",
+      });
+    }
+
+    if (!isPasswordCorrect) {
+      user.incrementLoginAttempts();
       return res.status(400).json({
         error: "Invalid email or password",
       });
