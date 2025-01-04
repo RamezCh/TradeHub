@@ -15,26 +15,24 @@ const LoginPage = () => {
   const { login, isLoggingIn, forgotPassword, lockTimeRemaining } =
     useAuthStore();
 
-  // State for timer countdown
   const [timer, setTimer] = useState(lockTimeRemaining);
 
   useEffect(() => {
-    // Start the countdown if there's remaining lock time
     if (lockTimeRemaining > 0) {
       setTimer(lockTimeRemaining);
       const intervalId = setInterval(() => {
         setTimer((prevTime) => {
-          const newTime = Math.max(0, prevTime - 1); // Decrease by 1 second
+          const newTime = Math.max(0, prevTime - 1);
           if (newTime === 0) {
-            clearInterval(intervalId); // Stop the timer when it reaches 0
+            clearInterval(intervalId);
           }
           return newTime;
         });
       }, 1000);
 
-      return () => clearInterval(intervalId); // Cleanup on unmount or when lockTimeRemaining changes
+      return () => clearInterval(intervalId);
     }
-  }, [lockTimeRemaining]); // Dependency on lockTimeRemaining to trigger when it changes
+  }, [lockTimeRemaining]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -168,9 +166,9 @@ const LoginPage = () => {
               <button
                 type="submit"
                 className="btn btn-primary w-full"
-                disabled={isLoggingIn || lockTimeRemaining > 0}
+                disabled={isLoggingIn || timer > 0}
               >
-                {lockTimeRemaining > 0 ? (
+                {timer > 0 ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
                     Please wait {timer} seconds
@@ -196,9 +194,10 @@ const LoginPage = () => {
       </div>
 
       {/* Right Side - Image or Pattern */}
-      <div className="hidden lg:block w-full bg-cover">
-        <AuthImagePattern />
-      </div>
+      <AuthImagePattern
+        title="Welcome Back!"
+        subtitle="Fasten your seat belt and let us start trading!"
+      />
     </div>
   );
 };

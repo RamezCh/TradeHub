@@ -69,7 +69,8 @@ userSchema.methods.incrementLoginAttempts = function () {
     this.lockUntil = undefined;
   } else {
     this.loginAttempts += 1;
-    if (this.loginAttempts >= 3) {
+    if (this.loginAttempts >= 2) {
+      this.loginAttempts += 1;
       this.lockUntil = Date.now() + 5 * 60 * 1000;
     }
   }
