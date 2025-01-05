@@ -313,6 +313,7 @@ export const login = async (req, res) => {
       bio: user.bio,
       sellerStatus: user.sellerStatus,
       languages: user.languages,
+      isAdmin: user.isAdmin,
     };
 
     user.loginAttempts = 0;

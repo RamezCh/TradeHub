@@ -1,4 +1,5 @@
 import Navbar from "./components/shared/Navbar/Navbar.jsx";
+import AdminNavbar from "./components/shared/Admin Navbar/AdminNavbar.jsx";
 import LoggedInNavbar from "./components/shared/Logged In Navbar/LoggedInNavbar";
 import LoggedInMobileNavbar from "./components/shared/Logged In Navbar/LoggedInMobileNavbar.jsx";
 import LoggedInPadNavbar from "./components/shared/Logged In Navbar/LoggedInPadNavbar.jsx";
@@ -27,6 +28,7 @@ import PadNavbar from "./components/shared/Navbar/PadNavbar.jsx";
 import RegisterSellerPage from "./pages/RegisterSellerPage.jsx";
 import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 import MyListingsPage from "./pages/MyListingsPage.jsx";
+import AdminHomePage from "./pages/AdminHomePage.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -60,7 +62,7 @@ const App = () => {
             <MobileNavbar />
           </div>
         </>
-      ) : (
+      ) : !authUser?.isAdmin ? (
         <>
           <div className="hidden lg:block">
             <LoggedInNavbar />
@@ -72,11 +74,20 @@ const App = () => {
             <LoggedInMobileNavbar />
           </div>
         </>
+      ) : (
+        <>
+          <div className="hidden lg:block">
+            <AdminNavbar />
+          </div>
+        </>
       )}
       <div className="h-16 mb-2 bg-black bg-opacity-55"></div>
       <div className="flex-grow">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/"
+            element={!authUser?.isAdmin ? <HomePage /> : <AdminHomePage />}
+          />
           <Route
             path="/signup"
             element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
