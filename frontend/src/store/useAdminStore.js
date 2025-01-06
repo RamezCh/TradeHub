@@ -13,6 +13,7 @@ export const useAdminStore = create((set, get) => ({
   searchTerm: "",
   searchType: "",
   isUpdating: false,
+  logs: [],
 
   getDashboardData: async () => {
     try {
@@ -99,6 +100,26 @@ export const useAdminStore = create((set, get) => ({
     } catch (error) {
       console.error("Error deleting cover image:", error);
       toast.error("Error deleting cover image");
+    }
+  },
+
+  getLogs: async (limit = 10) => {
+    try {
+      set({ isLoading: true });
+      const page = get().currentPage;
+      const response = await axiosInstance.get("/admin/logs", {
+        params: { page, limit },
+      });
+
+      set({
+        logs: response.data.logs,
+        totalPages: response.data.totalPages,
+      });
+    } catch (error) {
+      toast.error("Error fetching logs");
+      console.error("Error fetching logs:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 

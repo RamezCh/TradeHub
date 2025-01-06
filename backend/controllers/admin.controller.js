@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Audit from "../models/Audit.js";
 import Listing from "../models/Listing.js";
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
@@ -166,6 +167,36 @@ export const deleteCoverImg = async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     console.error("Error in deletecoverImg by Admin: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getLogs = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const logs = await Audit.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "performedBy",
+        select: "firstName lastName",
+      });
+
+    const totalLogs = await Audit.countDocuments();
+
+    res.json({
+      logs,
+      totalLogs,
+      totalPages: Math.ceil(totalLogs / limit),
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error("Error in getLogs by Admin: ", error.message);
     res.status(500).json({ error: error.message });
   }
 };

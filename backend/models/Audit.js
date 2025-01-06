@@ -36,10 +36,6 @@ const auditSchema = new mongoose.Schema(
       type: String,
       maxlength: [1000, "Details cannot exceed 1000 characters"],
     },
-    timestamp: {
-      type: Date,
-      default: Date.now,
-    },
   },
   { timestamps: true }
 );
