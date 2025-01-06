@@ -1,8 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChartCandlestick } from "lucide-react";
 import SearchBar from "../SearchBar";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const handleSearch = (query, type) => {
+    navigate(
+      `/listings/search?query=${encodeURIComponent(
+        query
+      )}&type=${encodeURIComponent(type)}`
+    );
+  };
+
   return (
     <header className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 backdrop-blur-lg bg-base-100/80">
       <div className="container mx-auto px-4 h-16">
@@ -22,7 +31,11 @@ const Navbar = () => {
 
           {/* Search Bar */}
           <div className="w-3/6">
-            <SearchBar />
+            <SearchBar
+              dropdownOptions={["All", "Items", "Services"]}
+              onSearch={handleSearch}
+              placeholder="Search listings..."
+            />
           </div>
 
           <div className="flex items-center gap-2">

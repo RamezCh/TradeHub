@@ -22,14 +22,17 @@ const AdminNavbar = () => {
           </div>
           {/* Navbar Links */}
           <div className="space-x-4 flex items-center">
-            <Link to="/users" className="btn btn-ghost text-xl">
+            <Link to="/admin/users" className="btn btn-ghost text-xl">
               <Users className="w-4 h-4" />
               <span>Users</span>
             </Link>
-            <Link to="/pending-listings" className="btn btn-ghost text-xl">
+            <Link
+              to="/admin/pending-listings"
+              className="btn btn-ghost text-xl"
+            >
               <span>Pending Listings</span>
             </Link>
-            <Link to="/logs" className="btn btn-ghost text-xl">
+            <Link to="/admin/logs" className="btn btn-ghost text-xl">
               <span>Logs</span>
             </Link>
             <Link to="/settings" className="btn btn-ghost text-xl">

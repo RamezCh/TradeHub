@@ -1,9 +1,26 @@
+{
+  /* Core */
+}
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuthStore } from "./store/useAuthStore.js";
+import { useThemeStore } from "./store/useThemeStore";
+import { useEffect } from "react";
+import { Loader } from "lucide-react";
+import { Toaster } from "react-hot-toast";
+{
+  /* Navbars & Footer */
+}
 import Navbar from "./components/shared/Navbar/Navbar.jsx";
-import AdminNavbar from "./components/shared/Admin Navbar/AdminNavbar.jsx";
+import MobileNavbar from "./components/shared/Navbar/MobileNavbar.jsx";
+import PadNavbar from "./components/shared/Navbar/PadNavbar.jsx";
 import LoggedInNavbar from "./components/shared/Logged In Navbar/LoggedInNavbar";
 import LoggedInMobileNavbar from "./components/shared/Logged In Navbar/LoggedInMobileNavbar.jsx";
 import LoggedInPadNavbar from "./components/shared/Logged In Navbar/LoggedInPadNavbar.jsx";
+import AdminNavbar from "./components/shared/Admin Navbar/AdminNavbar.jsx";
 import Footer from "./components/shared/Footer";
+{
+  /* Pages */
+}
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
@@ -16,19 +33,17 @@ import ListingPage from "./pages/ListingPage";
 import InboxPage from "./pages/InboxPage";
 import AddListingPage from "./pages/AddListingPage";
 import EditListingPage from "./pages/EditListingPage.jsx";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuthStore } from "./store/useAuthStore.js";
-import { useThemeStore } from "./store/useThemeStore";
-import { useEffect } from "react";
-import { Loader } from "lucide-react";
-import { Toaster } from "react-hot-toast";
 import SearchResultsPage from "./pages/SearchResultsPage.jsx";
-import MobileNavbar from "./components/shared/Navbar/MobileNavbar.jsx";
-import PadNavbar from "./components/shared/Navbar/PadNavbar.jsx";
 import RegisterSellerPage from "./pages/RegisterSellerPage.jsx";
 import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 import MyListingsPage from "./pages/MyListingsPage.jsx";
-import AdminHomePage from "./pages/AdminHomePage.jsx";
+{
+  /* Admin Pages */
+}
+import AdminHomePage from "./pages/Admin/AdminHomePage.jsx";
+import AdminLogsPage from "./pages/Admin/AdminLogsPage.jsx";
+import AdminPendingListingsPage from "./pages/Admin/AdminPendingListingsPage.jsx";
+import AdminUsersPage from "./pages/Admin/AdminUsersPage.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -124,6 +139,30 @@ const App = () => {
             path="/inbox/:username"
             element={authUser ? <InboxPage /> : <HomePage />}
           />
+          {/* Admin Routes */}
+          <Route
+            path="/admin/users"
+            element={
+              authUser?.isAdmin ? <AdminUsersPage /> : <Navigate to="/" />
+            }
+          />
+          <Route
+            path="/admin/logs"
+            element={
+              authUser?.isAdmin ? <AdminLogsPage /> : <Navigate to="/" />
+            }
+          />
+          <Route
+            path="/admin/pending-listings"
+            element={
+              authUser?.isAdmin ? (
+                <AdminPendingListingsPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          {/* Error Route */}
           <Route path="/*" element={<ErrorPage />} />
         </Routes>
       </div>

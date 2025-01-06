@@ -1,23 +1,24 @@
-import { useEffect, useState } from "react";
-import { useAdminStore } from "../store/useAdminStore";
+import { useEffect } from "react";
+import { useAdminStore } from "../../store/useAdminStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import { Users, FileText, Cloud } from "lucide-react";
 import { Loader } from "lucide-react";
 
 const AdminHomePage = () => {
-  const { userCount, listingCount, onlineUsersCount, fetchDashboardData } =
+  const { userCount, listingCount, getDashboardData, isLoading } =
     useAdminStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const { onlineUsers } = useAuthStore();
+  const onlineUsersCount = onlineUsers.length;
 
   useEffect(() => {
-    setIsLoading(true);
-    fetchDashboardData().finally(() => setIsLoading(false));
+    getDashboardData();
 
     const interval = setInterval(() => {
-      fetchDashboardData();
+      getDashboardData();
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [fetchDashboardData]);
+  }, [getDashboardData]);
 
   if (isLoading) {
     return (

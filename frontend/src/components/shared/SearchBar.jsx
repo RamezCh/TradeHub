@@ -1,16 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-const SearchBar = () => {
+const SearchBar = ({
+  dropdownOptions = ["All", "Items", "Services"],
+  onSearch,
+  placeholder = "Search",
+}) => {
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
-  const [dropDownValue, setDropDownValue] = useState("All");
+  const [dropDownValue, setDropDownValue] = useState(dropdownOptions[0]);
   const [searchValue, setSearchValue] = useState("");
-
-  const navigate = useNavigate();
-
-  const handleSearchValue = (e) => {
-    setSearchValue(e.target.value);
-  };
 
   const toggleDropDown = () => {
     setIsDropDownOpen((prev) => !prev);
@@ -21,15 +18,16 @@ const SearchBar = () => {
     setIsDropDownOpen(false);
   };
 
-  const handleSearch = () => {
-    if (searchValue.trim()) {
-      navigate(
-        `/listings/search?query=${encodeURIComponent(
-          searchValue
-        )}&type=${encodeURIComponent(dropDownValue)}`
-      );
+  const handleSearchValue = (e) => {
+    setSearchValue(e.target.value);
+  };
 
+  const handleSearch = () => {
+    if (searchValue.trim() && onSearch) {
+      onSearch(searchValue, dropDownValue);
       setSearchValue("");
+    } else {
+      onSearch("", "");
     }
   };
 
@@ -40,28 +38,21 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="relative flex items-center gap-0">
+    <div className={`relative flex items-center gap-0`}>
       {/* Dropdown */}
       <button className="btn m-1" onClick={toggleDropDown}>
-        {dropDownValue}
+        {dropDownValue.charAt(0).toUpperCase() +
+          dropDownValue.slice(1).toLowerCase()}
       </button>
       {isDropDownOpen && (
         <ul className="menu absolute bg-base-100 rounded-box z-10 w-52 p-2 shadow top-full mt-1">
-          <li>
-            <a onClick={handleDropDown} data-value="All">
-              All
-            </a>
-          </li>
-          <li>
-            <a onClick={handleDropDown} data-value="Items">
-              Items
-            </a>
-          </li>
-          <li>
-            <a onClick={handleDropDown} data-value="Services">
-              Services
-            </a>
-          </li>
+          {dropdownOptions.map((option) => (
+            <li key={option}>
+              <a onClick={handleDropDown} data-value={option}>
+                {option.charAt(0).toUpperCase() + option.slice(1).toLowerCase()}
+              </a>
+            </li>
+          ))}
         </ul>
       )}
 
@@ -70,7 +61,7 @@ const SearchBar = () => {
         <input
           type="text"
           className="grow"
-          placeholder="Search"
+          placeholder={placeholder}
           value={searchValue}
           onChange={handleSearchValue}
           onKeyDown={handleKeyDown}
