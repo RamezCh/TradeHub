@@ -5,7 +5,6 @@ const UserCard = ({
   profileImg = "/default-profile-image.png",
   firstName,
   lastName,
-  userId,
   createdAt,
   username,
 }) => {
@@ -29,7 +28,7 @@ const UserCard = ({
         <p className="text-sm text-gray-700">@{username}</p>
 
         <div className="card-actions justify-end mt-4">
-          <Link to={`/admin/user/${userId}`}>
+          <Link to={`/admin/user/${username}`}>
             <button className="btn btn-primary btn-sm">Edit</button>
           </Link>
         </div>

@@ -57,7 +57,6 @@ const AdminUsersPage = () => {
                   profileImg={user.profileImg || "/default-profile-image.png"}
                   firstName={user.firstName}
                   lastName={user.lastName}
-                  userId={user._id}
                   createdAt={user.createdAt}
                   username={user.username}
                 />

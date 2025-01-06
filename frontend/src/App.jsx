@@ -44,6 +44,7 @@ import AdminHomePage from "./pages/Admin/AdminHomePage.jsx";
 import AdminLogsPage from "./pages/Admin/AdminLogsPage.jsx";
 import AdminPendingListingsPage from "./pages/Admin/AdminPendingListingsPage.jsx";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage.jsx";
+import AdminUserProfile from "./pages/Admin/AdminUserProfile.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -144,6 +145,12 @@ const App = () => {
             path="/admin/users"
             element={
               authUser?.isAdmin ? <AdminUsersPage /> : <Navigate to="/" />
+            }
+          />
+          <Route
+            path="/admin/user/:username"
+            element={
+              authUser?.isAdmin ? <AdminUserProfile /> : <Navigate to="/" />
             }
           />
           <Route

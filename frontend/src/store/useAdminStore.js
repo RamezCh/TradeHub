@@ -6,11 +6,13 @@ export const useAdminStore = create((set, get) => ({
   userCount: 0,
   listingCount: 0,
   users: [],
+  user: null,
   totalPages: 0,
   currentPage: 1,
   isLoading: false,
   searchTerm: "",
   searchType: "",
+  isUpdating: false,
 
   getDashboardData: async () => {
     try {
@@ -46,6 +48,57 @@ export const useAdminStore = create((set, get) => ({
       console.error("Error fetching users:", error);
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  getUser: async (username) => {
+    try {
+      set({ isLoading: true });
+      const response = await axiosInstance.get(`/users/profile/${username}`);
+      set({ user: response.data });
+    } catch (error) {
+      toast.error("Error fetching user");
+      console.error("Error fetching user:", error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateUser: async (data) => {
+    set({ isUpdating: true });
+    try {
+      const res = await axiosInstance.put("/admin/user/update", data);
+      set({ user: res.data });
+      toast.success("User updated successfully");
+    } catch (error) {
+      console.log("error in update user:", error);
+      toast.error(error.response.data.error);
+    } finally {
+      set({ isUpdating: false });
+    }
+  },
+
+  deleteProfileImg: async (username) => {
+    try {
+      await axiosInstance.delete(`/admin/user/delete/profileImg`, {
+        data: { username },
+      });
+      toast.success("Profile image deleted successfully");
+    } catch (error) {
+      console.error("Error deleting profile image:", error);
+      toast.error("Error deleting profile image");
+    }
+  },
+
+  deleteCoverImg: async (username) => {
+    try {
+      await axiosInstance.delete(`/admin/user/delete/coverImg`, {
+        data: { username },
+      });
+      toast.success("Cover image deleted successfully");
+    } catch (error) {
+      console.error("Error deleting cover image:", error);
+      toast.error("Error deleting cover image");
     }
   },
 
