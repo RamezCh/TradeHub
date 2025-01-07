@@ -91,8 +91,6 @@ const listingSchema = new mongoose.Schema(
         },
       },
     ],
-  },
-  {
     approvalStatus: {
       type: String,
       enum: ["pending", "approved", "rejected"],
@@ -101,6 +99,9 @@ const listingSchema = new mongoose.Schema(
     rejectionReason: {
       type: String,
       maxlength: [500, "Rejection reason cannot exceed 500 characters"],
+      required: function () {
+        return this.approvalStatus === "rejected"; // Required only if approvalStatus is "rejected"
+      },
     },
   },
   {
@@ -108,9 +109,7 @@ const listingSchema = new mongoose.Schema(
   }
 );
 
-const Listing = mongoose.model("Listing", listingSchema);
-export default Listing;
-
+// Method to calculate average rating
 listingSchema.methods.calculateAverageRating = function () {
   if (this.reviews.length > 0) {
     const totalRating = this.reviews.reduce(
@@ -123,7 +122,11 @@ listingSchema.methods.calculateAverageRating = function () {
   }
 };
 
+// Pre-save hook to calculate average rating before saving
 listingSchema.pre("save", function (next) {
   this.calculateAverageRating();
   next();
 });
+
+const Listing = mongoose.model("Listing", listingSchema);
+export default Listing;

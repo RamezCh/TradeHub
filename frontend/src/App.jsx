@@ -43,6 +43,7 @@ import MyListingsPage from "./pages/MyListingsPage.jsx";
 import AdminHomePage from "./pages/Admin/AdminHomePage.jsx";
 import AdminLogsPage from "./pages/Admin/AdminLogsPage.jsx";
 import AdminPendingListingsPage from "./pages/Admin/AdminPendingListingsPage.jsx";
+import AdminListingPage from "./pages/Admin/AdminListingPage.jsx";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage.jsx";
 import AdminUserProfile from "./pages/Admin/AdminUserProfile.jsx";
 
@@ -168,6 +169,10 @@ const App = () => {
                 <Navigate to="/" />
               )
             }
+          />
+          <Route
+            path="/admin/listing/:listingId"
+            element={<AdminListingPage />}
           />
           {/* Error Route */}
           <Route path="/*" element={<ErrorPage />} />

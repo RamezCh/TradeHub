@@ -255,3 +255,32 @@ export const getPendingListings = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const setListingApprovalStatus = async (req, res) => {
+  const { listingId } = req.params;
+  const { approvalStatus, rejectionReason } = req.body;
+
+  console.log("Received approvalStatus:", approvalStatus);
+  console.log("Received rejectionReason:", rejectionReason);
+
+  try {
+    let listing = await Listing.findById(listingId);
+    if (!listing) return res.status(404).json({ message: "Listing not found" });
+
+    listing.approvalStatus = approvalStatus;
+    if (approvalStatus === "rejected") {
+      listing.rejectionReason = rejectionReason;
+    }
+
+    listing = await listing.save();
+    console.log("Listing after save:", listing);
+
+    res.status(200).json(listing);
+  } catch (error) {
+    console.error(
+      "Error in setListingApprovalStatus by Admin: ",
+      error.message
+    );
+    res.status(500).json({ error: error.message });
+  }
+};

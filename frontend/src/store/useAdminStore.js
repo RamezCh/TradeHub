@@ -15,6 +15,7 @@ export const useAdminStore = create((set, get) => ({
   isUpdating: false,
   logs: [],
   listings: [],
+  listing: null,
 
   getDashboardData: async () => {
     try {
@@ -150,6 +151,34 @@ export const useAdminStore = create((set, get) => ({
       console.error("Error fetching pending listings:", error);
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  getListing: async (listingId) => {
+    try {
+      set({ isLoading: true });
+      const response = await axiosInstance.get(`/listings/${listingId}`);
+      set({ listing: response.data.listing });
+    } catch (error) {
+      toast.error("Error fetching listing");
+      console.error("Error fetching listing:", error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  setListingApprovalStatus: async (listingId, data) => {
+    try {
+      set({ isUpdating: true });
+      await axiosInstance.put(`/admin/listing/status/${listingId}`, data);
+      toast.success("Listing status updated successfully");
+      const list = get().getListing(listingId);
+      set({ listing: list });
+    } catch (error) {
+      toast.error("Error updating listing status");
+      console.error("Error updating listing status:", error);
+    } finally {
+      set({ isUpdating: false });
     }
   },
 

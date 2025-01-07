@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import InputField from "../components/shared/InputField";
-import Textarea from "../components/shared/Textarea";
+import TextArea from "../components/shared/TextArea";
 import Dropdown from "../components/shared/Dropdown";
 import ImageInput from "../components/shared/ImageInput";
 import RadioButton from "../components/shared/RadioButton";
@@ -157,7 +157,7 @@ const AddListingPage = () => {
           required
         />
 
-        <Textarea
+        <TextArea
           label="Description"
           name="description"
           value={formData.description}

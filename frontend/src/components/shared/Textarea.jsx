@@ -1,4 +1,4 @@
-const Textarea = ({ label, name, value, onChange, placeholder, required }) => (
+const TextArea = ({ label, name, value, onChange, placeholder, required }) => (
   <div>
     <label className="block text-sm font-bold mb-2">{label}</label>
     <textarea
@@ -12,4 +12,4 @@ const Textarea = ({ label, name, value, onChange, placeholder, required }) => (
   </div>
 );
 
-export default Textarea;
+export default TextArea;
