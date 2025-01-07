@@ -113,8 +113,8 @@ const AdminHomePage = () => {
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
+                label={({ name, value, percent }) =>
+                  `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
                 }
               >
                 {listingStatusData.map((entry, index) => (
