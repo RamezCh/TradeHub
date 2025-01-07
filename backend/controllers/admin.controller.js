@@ -175,10 +175,35 @@ export const getLogs = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const searchTerm = req.query.search.trim() || "";
+    const searchType = req.query.type || "";
 
     const skip = (page - 1) * limit;
 
-    const logs = await Audit.find()
+    let query = {};
+
+    if (searchTerm && searchType) {
+      let searchField = "";
+      if (searchType === "Performed By") {
+        searchField = "performedBy";
+      } else if (searchType === "Target ID") {
+        searchField = "targetId";
+      } else if (searchType === "Details") {
+        searchField = "details";
+      }
+
+      if (searchField === "targetId" || searchField === "performedBy") {
+        query[searchField] =
+          mongoose.Types.ObjectId.createFromHexString(searchTerm);
+      } else if (searchField === "details") {
+        query[searchField] = {
+          $regex: searchTerm,
+          $options: "i",
+        };
+      }
+    }
+
+    const logs = await Audit.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -187,7 +212,7 @@ export const getLogs = async (req, res) => {
         select: "firstName lastName",
       });
 
-    const totalLogs = await Audit.countDocuments();
+    const totalLogs = await Audit.countDocuments(query);
 
     res.json({
       logs,

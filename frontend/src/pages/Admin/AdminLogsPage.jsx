@@ -1,14 +1,28 @@
 import { useAdminStore } from "../../store/useAdminStore.js";
 import { Loader } from "lucide-react";
 import { useEffect } from "react";
+import SearchBar from "../../components/shared/SearchBar";
 
 const AdminLogsPage = () => {
-  const { getLogs, isLoading, logs, totalPages, currentPage, setPage } =
-    useAdminStore();
+  const {
+    getLogs,
+    isLoading,
+    logs,
+    totalPages,
+    currentPage,
+    setPage,
+    setSearchTermAndType,
+  } = useAdminStore();
 
   useEffect(() => {
     getLogs(12);
   }, [getLogs, currentPage]);
+
+  const handleSearch = (term, type) => {
+    setSearchTermAndType(term, type);
+    getLogs();
+    setPage(1);
+  };
 
   if (isLoading) {
     return (
@@ -18,13 +32,19 @@ const AdminLogsPage = () => {
     );
   }
 
+  // TODO onSearch fn needs to be added to the SearchBar component
+
   return (
     <div className="p-6 min-h-screen">
       <div className="flex justify-between items-center m-6">
+        <div className="w-1/2">
+          <SearchBar
+            onSearch={handleSearch}
+            dropdownOptions={["Target ID", "Performed By", "Details"]}
+            placeholder="Search by target ID, by perfromer ID (after @), By Details (Log out, Log in)"
+          />
+        </div>
         <h1 className="text-3xl font-bold text-primary mb-6">Admin Logs</h1>
-        <span className="text-secondary text-lg">
-          Page {currentPage} of {totalPages}
-        </span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -60,6 +80,9 @@ const AdminLogsPage = () => {
         >
           Previous
         </button>
+        <span className="text-secondary text-lg">
+          Page {currentPage} of {totalPages}
+        </span>
         <button
           className="btn btn-primary btn-sm"
           onClick={() => {

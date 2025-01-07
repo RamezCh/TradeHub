@@ -109,13 +109,17 @@ export const useAdminStore = create((set, get) => ({
     try {
       set({ isLoading: true });
       const page = get().currentPage;
+      const searchTerm = get().searchTerm;
+      const searchType = get().searchType;
+
       const response = await axiosInstance.get("/admin/logs", {
-        params: { page, limit },
+        params: { page, limit, search: searchTerm, type: searchType },
       });
 
       set({
         logs: response.data.logs,
         totalPages: response.data.totalPages,
+        currentPage: page,
       });
     } catch (error) {
       toast.error("Error fetching logs");
