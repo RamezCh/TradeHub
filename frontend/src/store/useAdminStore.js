@@ -5,6 +5,11 @@ import toast from "react-hot-toast";
 export const useAdminStore = create((set, get) => ({
   userCount: 0,
   listingCount: 0,
+  pendingListingsCount: 0,
+  approvedListingsCount: 0,
+  rejectedListingsCount: 0,
+  availableListingsCount: 0,
+  tradedListingsCount: 0,
   users: [],
   user: null,
   totalPages: 0,
@@ -24,6 +29,11 @@ export const useAdminStore = create((set, get) => ({
       set({
         userCount: response.data.userCount,
         listingCount: response.data.listingCount,
+        pendingListingsCount: response.data.pendingListingsCount,
+        approvedListingsCount: response.data.approvedListingsCount,
+        rejectedListingsCount: response.data.rejectedListingsCount,
+        availableListingsCount: response.data.availableListingsCount,
+        tradedListingsCount: response.data.tradedListingsCount,
       });
     } catch (error) {
       toast.error("Error fetching dashboard data");

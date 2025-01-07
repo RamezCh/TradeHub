@@ -1,12 +1,21 @@
 import { useEffect } from "react";
 import { useAdminStore } from "../../store/useAdminStore";
 import { useAuthStore } from "../../store/useAuthStore";
-import { Users, FileText, Cloud } from "lucide-react";
-import { Loader } from "lucide-react";
+import { Users, FileText, Cloud, Loader } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
 
 const AdminHomePage = () => {
-  const { userCount, listingCount, getDashboardData, isLoading } =
-    useAdminStore();
+  const {
+    userCount,
+    listingCount,
+    pendingListingsCount,
+    approvedListingsCount,
+    rejectedListingsCount,
+    availableListingsCount,
+    tradedListingsCount,
+    isLoading,
+    getDashboardData,
+  } = useAdminStore();
   const { onlineUsers } = useAuthStore();
   const onlineUsersCount = onlineUsers.length;
 
@@ -15,10 +24,22 @@ const AdminHomePage = () => {
 
     const interval = setInterval(() => {
       getDashboardData();
-    }, 30000);
+    }, 120000);
 
     return () => clearInterval(interval);
   }, [getDashboardData]);
+
+  // Data for the Pie Chart
+  const listingStatusData = [
+    { name: "Pending", value: pendingListingsCount },
+    { name: "Approved", value: approvedListingsCount },
+    { name: "Rejected", value: rejectedListingsCount },
+    { name: "Available", value: availableListingsCount },
+    { name: "Traded", value: tradedListingsCount },
+  ];
+
+  // Colors for the Pie Chart
+  const COLORS = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
 
   if (isLoading) {
     return (
@@ -29,69 +50,83 @@ const AdminHomePage = () => {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-semibold text-center mb-6 text-primary">
+    <div className="p-8 bg-base-100 min-h-screen">
+      <h1 className="text-3xl font-semibold text-center mb-8 text-primary">
         Admin Dashboard
       </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Users Count Card */}
-        <div className="card w-full min-h-full bg-primary shadow-xl p-4">
-          <div className="card-body flex items-center justify-between p-4">
+        <div className="card bg-primary text-primary-content shadow-xl">
+          <div className="card-body flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Users
-                className="h-6 w-6 text-primary-content"
-                aria-label="Users Icon"
-              />
+              <Users className="h-8 w-8" />
               <div>
-                <h2 className="text-xl font-medium text-primary-content">
-                  Users Count
-                </h2>
-                <p className="text-2xl font-bold text-primary-content">
-                  {userCount}
-                </p>
+                <h2 className="text-xl font-medium">Users Count</h2>
+                <p className="text-2xl font-bold">{userCount}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Listings Count Card */}
-        <div className="card w-full min-h-full bg-secondary shadow-xl p-4">
-          <div className="card-body flex items-center justify-between p-4">
+        <div className="card bg-secondary text-secondary-content shadow-xl">
+          <div className="card-body flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <FileText
-                className="h-6 w-6 text-secondary-content"
-                aria-label="Listings Icon"
-              />
+              <FileText className="h-8 w-8" />
               <div>
-                <h2 className="text-xl font-medium text-secondary-content">
-                  Listings Count
-                </h2>
-                <p className="text-2xl font-bold text-secondary-content">
-                  {listingCount}
-                </p>
+                <h2 className="text-xl font-medium">Listings Count</h2>
+                <p className="text-2xl font-bold">{listingCount}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Online Users Card */}
-        <div className="card w-full min-h-full bg-accent shadow-xl p-4">
-          <div className="card-body flex items-center justify-between p-4">
+        <div className="card bg-accent text-accent-content shadow-xl">
+          <div className="card-body flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Cloud
-                className="h-6 w-6 text-accent-content"
-                aria-label="Online Users Icon"
-              />
+              <Cloud className="h-8 w-8" />
               <div>
-                <h2 className="text-xl font-medium text-accent-content">
-                  Online Users
-                </h2>
-                <p className="text-2xl font-bold text-accent-content">
-                  {onlineUsersCount}
-                </p>
+                <h2 className="text-xl font-medium">Online Users</h2>
+                <p className="text-2xl font-bold">{onlineUsersCount}</p>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Pie Chart Section */}
+      <div className="card bg-base-200 shadow-xl p-6">
+        <h2 className="text-2xl font-semibold text-center mb-6 text-primary">
+          Listings Distribution
+        </h2>
+        <div className="w-full h-96">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={listingStatusData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={120}
+                fill="#8884d8"
+                dataKey="value"
+                label={({ name, percent }) =>
+                  `${name}: ${(percent * 100).toFixed(0)}%`
+                }
+              >
+                {listingStatusData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>

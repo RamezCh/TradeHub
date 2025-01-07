@@ -9,7 +9,31 @@ export const getAdminDashboard = async (req, res) => {
     const userCount = await User.countDocuments();
     const listingCount = await Listing.countDocuments();
 
-    res.json({ userCount, listingCount });
+    const pendingListingsCount = await Listing.countDocuments({
+      approvalStatus: "pending",
+    });
+    const approvedListingsCount = await Listing.countDocuments({
+      approvalStatus: "approved",
+    });
+    const rejectedListingsCount = await Listing.countDocuments({
+      approvalStatus: "rejected",
+    });
+    const availableListingsCount = await Listing.countDocuments({
+      status: "available",
+    });
+    const tradedListingsCount = await Listing.countDocuments({
+      status: "traded",
+    });
+
+    res.json({
+      userCount,
+      listingCount,
+      pendingListingsCount,
+      approvedListingsCount,
+      rejectedListingsCount,
+      availableListingsCount,
+      tradedListingsCount,
+    });
   } catch (err) {
     console.error(err);
     res
