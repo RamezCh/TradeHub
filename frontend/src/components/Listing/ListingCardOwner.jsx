@@ -7,7 +7,6 @@ const ListingCardOwner = ({ listing, onDelete }) => {
   const { deleteListing } = useListingStore();
   const navigate = useNavigate();
 
-  // State to manage modal visibility
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleEditClick = () => {
@@ -17,8 +16,8 @@ const ListingCardOwner = ({ listing, onDelete }) => {
   const handleDeleteClick = async () => {
     try {
       await deleteListing(listing._id);
-      onDelete(listing._id); // Call the onDelete callback passed from the parent to update the list
-      setIsModalOpen(false); // Close modal after deletion
+      onDelete(listing._id);
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error deleting listing:", error);
       alert("Failed to delete the listing.");
@@ -44,10 +43,7 @@ const ListingCardOwner = ({ listing, onDelete }) => {
                 <button className="btn btn-error" onClick={handleDeleteClick}>
                   Yes, Delete
                 </button>
-                <button
-                  className="btn"
-                  onClick={() => setIsModalOpen(false)} // Close modal without deletion
-                >
+                <button className="btn" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </button>
               </div>

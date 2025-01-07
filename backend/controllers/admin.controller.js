@@ -200,3 +200,58 @@ export const getLogs = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const getPendingListings = async (req, res) => {
+  try {
+    const { search, type, page = 1, limit = 10 } = req.query;
+
+    const query = { approvalStatus: "pending" };
+
+    if (search) {
+      const normalizedSearch = search.trim();
+
+      if (type === "title") {
+        query.title = { $regex: normalizedSearch, $options: "i" };
+      }
+
+      if (type === "seller") {
+        const users = await User.find({
+          $or: [
+            { firstName: { $regex: normalizedSearch, $options: "i" } },
+            { lastName: { $regex: normalizedSearch, $options: "i" } },
+          ],
+        }).select("_id");
+
+        const userIds = users.map((user) => user._id);
+
+        query.seller = { $in: userIds };
+      }
+
+      if (type === "id") {
+        query._id = new mongoose.Types.ObjectId(normalizedSearch);
+      }
+    }
+
+    // console.log("Query for listings:", query);
+    const skip = (page - 1) * limit;
+
+    const listings = await Listing.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate({ path: "seller", select: "firstName lastName" });
+    // console.log("Fetched listings:", listings);
+
+    const totalListings = await Listing.countDocuments(query);
+
+    res.json({
+      listings,
+      totalListings,
+      totalPages: Math.ceil(totalListings / limit),
+      currentPage: parseInt(page),
+    });
+  } catch (error) {
+    console.error("Error in getPendingListings by Admin: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};

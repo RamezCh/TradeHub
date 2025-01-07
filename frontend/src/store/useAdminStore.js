@@ -14,6 +14,7 @@ export const useAdminStore = create((set, get) => ({
   searchType: "",
   isUpdating: false,
   logs: [],
+  listings: [],
 
   getDashboardData: async () => {
     try {
@@ -45,7 +46,7 @@ export const useAdminStore = create((set, get) => ({
         currentPage: response.data.currentPage,
       });
     } catch (error) {
-      set({ error: "Error fetching users" });
+      toast.error("Error fetching users");
       console.error("Error fetching users:", error);
     } finally {
       set({ isLoading: false });
@@ -118,6 +119,35 @@ export const useAdminStore = create((set, get) => ({
     } catch (error) {
       toast.error("Error fetching logs");
       console.error("Error fetching logs:", error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  getPendingListings: async (page = 1, limit = 8) => {
+    try {
+      set({ isLoading: true });
+
+      const searchTerm = get().searchTerm;
+      const searchType = get().searchType;
+
+      const response = await axiosInstance.get("/admin/listings/pending", {
+        params: {
+          page,
+          limit,
+          search: searchTerm,
+          type: searchType,
+        },
+      });
+
+      set({
+        listings: response.data.listings,
+        totalPages: response.data.totalPages,
+        currentPage: response.data.currentPage,
+      });
+    } catch (error) {
+      toast.error("Error fetching pending listings");
+      console.error("Error fetching pending listings:", error);
     } finally {
       set({ isLoading: false });
     }

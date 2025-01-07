@@ -6,6 +6,7 @@ import {
   deleteProfileImg,
   deleteCoverImg,
   getLogs,
+  getPendingListings,
 } from "../controllers/admin.controller.js";
 import { protectAdminRoute } from "../middleware/authMiddleware.js";
 
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.get("/dashboard", protectAdminRoute, getAdminDashboard);
 router.get("/logs", protectAdminRoute, getLogs);
+router.get("/listings/pending", protectAdminRoute, getPendingListings);
 router.get("/users/search", protectAdminRoute, searchForUser);
 router.put("/user/update", protectAdminRoute, updateUser);
 router.delete("/user/delete/profileImg", protectAdminRoute, deleteProfileImg);
