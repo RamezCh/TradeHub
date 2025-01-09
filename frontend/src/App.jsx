@@ -46,6 +46,7 @@ import AdminPendingListingsPage from "./pages/Admin/AdminPendingListingsPage.jsx
 import AdminListingPage from "./pages/Admin/AdminListingPage.jsx";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage.jsx";
 import AdminUserProfile from "./pages/Admin/AdminUserProfile.jsx";
+import LoggedHomePage from "./pages/LoggedHomePage.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -103,7 +104,15 @@ const App = () => {
         <Routes>
           <Route
             path="/"
-            element={!authUser?.isAdmin ? <HomePage /> : <AdminHomePage />}
+            element={
+              !authUser ? (
+                <HomePage />
+              ) : authUser.isAdmin ? (
+                <AdminHomePage />
+              ) : (
+                <LoggedHomePage />
+              )
+            }
           />
           <Route
             path="/signup"
