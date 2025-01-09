@@ -52,35 +52,33 @@ const AddListingPage = () => {
   };
 
   const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files); // Convert file list to array
+    const files = Array.from(e.target.files);
     const newImageUrls = [];
     const newImagesBase64 = [];
 
-    // Function to convert file to base64 string
     const convertFileToBase64 = (file) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          resolve(reader.result); // This will be the base64 string
+          resolve(reader.result);
         };
         reader.onerror = reject;
-        reader.readAsDataURL(file); // Convert file to base64 string
+        reader.readAsDataURL(file);
       });
     };
 
     const processImages = async () => {
       for (const file of files) {
         try {
-          const base64Image = await convertFileToBase64(file); // Convert file to base64 string
-          newImagesBase64.push(base64Image); // Store base64 string
-          newImageUrls.push(base64Image); // Store for image preview (base64 string)
+          const base64Image = await convertFileToBase64(file);
+          newImagesBase64.push(base64Image);
+          newImageUrls.push(base64Image);
 
-          // Update states only when all files have been processed
           if (newImageUrls.length === files.length) {
             setImageUrls((prev) => [...prev, ...newImageUrls]);
             setFormData((prev) => ({
               ...prev,
-              images: [...prev.images, ...newImagesBase64], // Store base64 strings in formData
+              images: [...prev.images, ...newImagesBase64],
             }));
           }
         } catch (error) {
@@ -89,7 +87,7 @@ const AddListingPage = () => {
       }
     };
 
-    processImages(); // Execute image processing
+    processImages();
   };
 
   const handleImageRemove = (index) => {
@@ -154,6 +152,7 @@ const AddListingPage = () => {
           value={formData.title}
           onChange={handleInputChange}
           placeholder="Enter title"
+          maxLength={100}
           required
         />
 
@@ -163,6 +162,7 @@ const AddListingPage = () => {
           value={formData.description}
           onChange={handleInputChange}
           placeholder="Enter description"
+          maxLength={1000}
           required
         />
 

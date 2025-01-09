@@ -309,8 +309,8 @@ export const setListingApprovalStatus = async (req, res) => {
   const { listingId } = req.params;
   const { approvalStatus, rejectionReason } = req.body;
 
-  console.log("Received approvalStatus:", approvalStatus);
-  console.log("Received rejectionReason:", rejectionReason);
+  // console.log("Received approvalStatus:", approvalStatus);
+  // console.log("Received rejectionReason:", rejectionReason);
 
   try {
     let listing = await Listing.findById(listingId);
@@ -322,7 +322,7 @@ export const setListingApprovalStatus = async (req, res) => {
     }
 
     listing = await listing.save();
-    console.log("Listing after save:", listing);
+    // console.log("Listing after save:", listing);
 
     res.status(200).json(listing);
   } catch (error) {

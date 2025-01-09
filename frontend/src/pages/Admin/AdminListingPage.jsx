@@ -19,16 +19,14 @@ const AdminListingPage = () => {
     isUpdating,
     listing,
   } = useAdminStore();
-  const [approvalStatus, setApprovalStatus] = useState("");
+  const [approvalStatus, setApprovalStatus] = useState("approved");
   const [rejectionReason, setRejectionReason] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
-  // Fetch listing data when the component mounts or listingId changes
   useEffect(() => {
     getListing(listingId);
   }, [getListing, listingId]);
 
-  // Handle form submission for updating approval status
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -41,7 +39,6 @@ const AdminListingPage = () => {
     setIsEditing(false);
   };
 
-  // Handle status change in the form
   const handleStatusChange = (e) => {
     setApprovalStatus(e.target.value);
     if (e.target.value !== "rejected") {
@@ -49,7 +46,6 @@ const AdminListingPage = () => {
     }
   };
 
-  // Show a loader if data is still loading or listing is not available
   if (isLoading || !listing) {
     return (
       <div className="flex justify-center items-center h-screen bg-neutral">
