@@ -5,21 +5,32 @@ import Dropdown from "./Dropdown";
 import { useLocationStore } from "../../store/useLocationStore";
 import { useCategoryStore } from "../../store/useCategoryStore";
 
-const FilterSidebar = () => {
+const FilterSidebar = ({ setSearchParams, searchParams }) => {
   const { isLoadingLocation, locations, fetchLocations } = useLocationStore();
   const { isLoadingCategory, categories, fetchCategories } = useCategoryStore();
 
-  const [selectedConditions, setSelectedConditions] = useState("");
-  const [location, setLocation] = useState("");
-  const [category, setCategory] = useState("");
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
-  const [paymentForm, setPaymentForm] = useState("");
+  const [selectedConditions, setSelectedConditions] = useState(
+    searchParams.conditions || ""
+  );
+  const [location, setLocation] = useState(searchParams.location || "");
+  const [category, setCategory] = useState(searchParams.category || "");
+  const [priceRange, setPriceRange] = useState({
+    min: searchParams.min || 0,
+    max: searchParams.max || 1000,
+  });
+  const [paymentForm, setPaymentForm] = useState(
+    searchParams.paymentForm || ""
+  );
 
   const handleConditionRadioChange = (selectedOption) =>
     setSelectedConditions(selectedOption);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    name == "location" ? setLocation(value) : setCategory(value);
+    if (name === "location") {
+      setLocation(value);
+    } else if (name === "category") {
+      setCategory(value);
+    }
   };
   const handlePriceRangeChange = (selectedOption) =>
     setPriceRange(selectedOption);
@@ -37,6 +48,38 @@ const FilterSidebar = () => {
     setCategory("");
     setPriceRange({ min: 0, max: 1000 });
     setPaymentForm("");
+    setSearchParams({});
+    // Reset URL
+    const resetUrl = "http://localhost:5179/listings/search?query=&type=";
+    window.history.pushState(null, "", resetUrl);
+  };
+
+  const buildQueryObject = () => {
+    const params = {};
+
+    if (selectedConditions) {
+      params.conditions = selectedConditions;
+    }
+    if (location) {
+      params.location = location;
+    }
+    if (category) {
+      params.category = category;
+    }
+    if (priceRange.min !== 0 || priceRange.max !== 1000) {
+      params.min = priceRange.min;
+      params.max = priceRange.max;
+    }
+    if (paymentForm) {
+      params.paymentForm = paymentForm;
+    }
+
+    return params;
+  };
+
+  const applyFilters = () => {
+    const queryObject = buildQueryObject();
+    setSearchParams(...searchParams, queryObject);
   };
 
   const botMargin = "mb-6";
@@ -48,7 +91,7 @@ const FilterSidebar = () => {
         <h3>Conditions</h3>
         <RadioButton
           name="conditions"
-          options={["new", "old", "refurbished"]}
+          options={["new", "used", "refurbished"]}
           selectedOption={selectedConditions}
           onChange={handleConditionRadioChange}
         />
@@ -64,10 +107,13 @@ const FilterSidebar = () => {
           options={
             isLoadingLocation
               ? [{ label: "Loading...", value: "" }]
-              : locations.map((location) => ({
-                  label: location.name,
-                  value: location._id,
-                }))
+              : [
+                  { label: "Choose a Location", value: "" },
+                  ...locations.map((location) => ({
+                    label: location.name,
+                    value: location._id,
+                  })),
+                ]
           }
           required
         />
@@ -83,10 +129,13 @@ const FilterSidebar = () => {
           options={
             isLoadingCategory
               ? [{ label: "Loading...", value: "" }]
-              : categories.map((category) => ({
-                  label: category.name,
-                  value: category._id,
-                }))
+              : [
+                  { label: "Choose a Category", value: "" },
+                  ...categories.map((category) => ({
+                    label: category.name,
+                    value: category._id,
+                  })),
+                ]
           }
           required
         />
@@ -116,7 +165,9 @@ const FilterSidebar = () => {
 
       {/* Apply and Reset Buttons */}
       <div className="flex flex-row justify-between">
-        <button className="btn btn-primary">Apply</button>
+        <button className="btn btn-primary" onClick={applyFilters}>
+          Apply
+        </button>
         <button className="btn btn-secondary" onClick={resetFilters}>
           Reset
         </button>
