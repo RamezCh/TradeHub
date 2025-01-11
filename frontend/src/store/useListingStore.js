@@ -6,6 +6,9 @@ export const useListingStore = create((set) => ({
   services: null,
   items: null,
   listing: null,
+  listings: null,
+  totalListings: 0,
+  totalListingsPages: 0,
   totalServices: 0,
   totalItems: 0,
   totalServicesPages: 0,
@@ -20,7 +23,9 @@ export const useListingStore = create((set) => ({
   fetchListings: async (page = 1, limit = 5, type) => {
     type === "service"
       ? set({ isLoadingServices: true, page, limit, type })
-      : set({ isLoadingItems: true, page, limit, type });
+      : type === "item"
+      ? set({ isLoadingItems: true, page, limit, type })
+      : set({ isLoadingListings: true, page, limit, type });
 
     try {
       // Make API request with pagination and type filtering
@@ -36,10 +41,16 @@ export const useListingStore = create((set) => ({
             totalServices: data.totalListings,
             totalServicesPages: data.totalPages,
           })
-        : set({
+        : type === "item"
+        ? set({
             items: data.listings,
             totalItems: data.totalListings,
             totalItemsPages: data.totalPages,
+          })
+        : set({
+            listings: data.listings,
+            totalListings: data.totalListings,
+            totalListingsPages: data.totalPages,
           });
     } catch (err) {
       set({ error: "Error fetching listings" });
@@ -47,7 +58,9 @@ export const useListingStore = create((set) => ({
     } finally {
       type === "service"
         ? set({ isLoadingServices: false })
-        : set({ isLoadingItems: false });
+        : type === "item"
+        ? set({ isLoadingItems: false })
+        : set({ isLoadingListings: false });
     }
   },
 
