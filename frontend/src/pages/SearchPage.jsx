@@ -27,17 +27,26 @@ const SearchPage = () => {
     searchParams.get("acceptsOtherPaymentForm") || "";
 
   useEffect(() => {
-    if (query) {
-      searchListings(currentPage, itemsPerPage, {
-        query,
-        type,
-        priceMin,
-        priceMax,
-        category,
-        location,
-        condition,
-        acceptsOtherPaymentForm,
-      });
+    const filters = {
+      query,
+      type,
+      priceMin,
+      priceMax,
+      category,
+      location,
+      condition,
+      acceptsOtherPaymentForm,
+    };
+
+    // Remove empty filters
+    Object.keys(filters).forEach((key) => {
+      if (!filters[key]) {
+        delete filters[key];
+      }
+    });
+
+    if (Object.keys(filters).length > 0) {
+      searchListings(currentPage, itemsPerPage, filters);
     } else {
       fetchListings(currentPage, itemsPerPage);
     }
