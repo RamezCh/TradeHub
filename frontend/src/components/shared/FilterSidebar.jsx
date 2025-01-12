@@ -131,7 +131,6 @@ const FilterSidebar = () => {
         <div className={botMargin}>
           <h3 className="text-lg font-semibold mb-2">Location</h3>
           <Dropdown
-            label="Location"
             name="location"
             value={location}
             onChange={handleInputChange}
@@ -154,7 +153,6 @@ const FilterSidebar = () => {
         <div className={botMargin}>
           <h3 className="text-lg font-semibold mb-2">Category</h3>
           <Dropdown
-            label="Category"
             name="category"
             value={category}
             onChange={handleInputChange}
@@ -175,7 +173,6 @@ const FilterSidebar = () => {
 
         {/* Filter by Price Range */}
         <div className={botMargin}>
-          <h3 className="text-lg font-semibold mb-2">Price Range</h3>
           <PriceRange
             min={0}
             max={1000}
@@ -189,7 +186,6 @@ const FilterSidebar = () => {
         <div className={botMargin}>
           <h3 className="text-lg font-semibold mb-2">Payment Form</h3>
           <RadioButton
-            label="Accepts Other Payment Form"
             name="paymentForm"
             options={["Items", "Services", "Both", "None"]}
             selectedOption={paymentForm}

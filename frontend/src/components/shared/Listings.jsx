@@ -1,5 +1,5 @@
 import DetailedItemCard from "./DetailedItemCard";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Frown } from "lucide-react";
 
 const Listings = ({
   listings,
@@ -14,8 +14,8 @@ const Listings = ({
   return (
     <div>
       {isLoadingListings ? (
-        <div className="text-center py-10">
-          <div className="w-12 h-12 border-2 border-primary border-t-0 rounded-full animate-spin"></div>
+        <div className="flex justify-center items-center h-[50vh]">
+          <Loader2 className="w-12 h-12 text-primary animate-spin" />
         </div>
       ) : listings?.length > 0 ? (
         <div>
@@ -78,7 +78,12 @@ const Listings = ({
           </div>
         </div>
       ) : (
-        <p className="text-center py-10">No Listings found</p>
+        <div className="flex justify-center items-center h-[50vh]">
+          <div className="text-center">
+            <Frown className="w-12 h-12 text-gray-500 mx-auto" />
+            <p className="text-gray-500 text-xl mt-4">No Listings Found</p>
+          </div>
+        </div>
       )}
     </div>
   );
