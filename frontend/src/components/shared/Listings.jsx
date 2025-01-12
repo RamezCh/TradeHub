@@ -20,7 +20,7 @@ const Listings = ({
       ) : listings?.length > 0 ? (
         <div>
           {/* Display the current listings */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 ml-24 mr-10 p-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4 pl-0">
             {listings.map((listing) => (
               <DetailedItemCard
                 key={listing._id}
@@ -38,7 +38,8 @@ const Listings = ({
           </div>
 
           {/* Pagination component */}
-          <div className="flex justify-between items-center mt-4">
+          <div className="flex flex-nowrap overflow-x-auto justify-between items-center mt-4 p-4 gap-2">
+            {/* Previous Button */}
             <button
               className={`btn btn-ghost ${
                 currentPage === 1 ? "btn-disabled" : ""
@@ -47,14 +48,16 @@ const Listings = ({
             >
               <ArrowLeft className="mr-2" /> Previous
             </button>
-            <div>
+
+            {/* Page Numbers */}
+            <div className="flex flex-nowrap gap-1">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => (
                   <button
                     key={page}
                     className={`btn ${
                       currentPage === page ? "btn-primary" : "btn-ghost"
-                    } mx-1`}
+                    } min-w-[40px]`}
                     onClick={() => setCurrentPage(page)}
                   >
                     {page}
@@ -62,6 +65,8 @@ const Listings = ({
                 )
               )}
             </div>
+
+            {/* Next Button */}
             <button
               className={`btn btn-ghost ${
                 currentPage === totalPages ? "btn-disabled" : ""

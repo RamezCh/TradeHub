@@ -16,6 +16,7 @@ const FilterSidebar = () => {
   const [category, setCategory] = useState("");
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
   const [paymentForm, setPaymentForm] = useState("");
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const handleConditionRadioChange = (selectedOption) =>
     setSelectedConditions(selectedOption);
@@ -69,6 +70,7 @@ const FilterSidebar = () => {
     }
 
     setSearchParams(newSearchParams);
+    setIsMobileFiltersOpen(false); // Close filters after applying
   };
 
   const resetFilters = () => {
@@ -89,99 +91,129 @@ const FilterSidebar = () => {
     newSearchParams.delete("acceptsOtherPaymentForm");
 
     setSearchParams(newSearchParams);
+    setIsMobileFiltersOpen(false); // Close filters after resetting
   };
 
   const botMargin = "mb-6";
 
   return (
-    <div className="bg-base-200 mb-2 p-6 sticky top-0">
-      {/* Filter by Conditions */}
-      <div className={botMargin}>
-        <h3>Conditions</h3>
-        <RadioButton
-          name="conditions"
-          options={["new", "used", "refurbished"]}
-          selectedOption={selectedConditions}
-          onChange={handleConditionRadioChange}
-        />
-      </div>
-
-      {/* Filter by Location */}
-      <div className={botMargin}>
-        <Dropdown
-          label="Location"
-          name="location"
-          value={location}
-          onChange={handleInputChange}
-          options={
-            isLoadingLocation
-              ? [{ label: "Loading...", value: "" }]
-              : [
-                  { label: "Choose a Location", value: "" },
-                  ...locations.map((location) => ({
-                    label: location.name,
-                    value: location._id,
-                  })),
-                ]
-          }
-          required
-        />
-      </div>
-
-      {/* Filter by Category */}
-      <div className={botMargin}>
-        <Dropdown
-          label="Category"
-          name="category"
-          value={category}
-          onChange={handleInputChange}
-          options={
-            isLoadingCategory
-              ? [{ label: "Loading...", value: "" }]
-              : [
-                  { label: "Choose a Category", value: "" },
-                  ...categories.map((category) => ({
-                    label: category.name,
-                    value: category._id,
-                  })),
-                ]
-          }
-          required
-        />
-      </div>
-
-      {/* Filter by Price Range */}
-      <div className={botMargin}>
-        <PriceRange
-          min={0}
-          max={1000}
-          step={1}
-          value={priceRange}
-          onChange={handlePriceRangeChange}
-        />
-      </div>
-
-      {/* Filter by Payment Form */}
-      <div className={botMargin}>
-        <RadioButton
-          label="Accepts Other Payment Form"
-          name="paymentForm"
-          options={["Items", "Services", "Both", "None"]}
-          selectedOption={paymentForm}
-          onChange={handlePaymentFormChange}
-        />
-      </div>
-
-      {/* Apply and Reset Buttons */}
-      <div className="flex flex-row justify-between">
-        <button className="btn btn-primary" onClick={applyFilters}>
-          Apply Filters
-        </button>
-        <button className="btn btn-secondary" onClick={resetFilters}>
-          Reset Filters
+    <>
+      {/* Mobile: Fixed "Open Filters" Button */}
+      <div className="bg-base-200 p-4 z-50 md:hidden">
+        <button
+          className="btn btn-primary w-full"
+          onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+        >
+          {isMobileFiltersOpen ? "Close Filters" : "Open Filters"}
         </button>
       </div>
-    </div>
+
+      {/* Filters Sidebar */}
+      <div
+        className={`bg-base-200 mb-2 p-6 sticky top-24 w-full md:w-80 lg:w-96 ${
+          isMobileFiltersOpen
+            ? "fixed inset-0 z-40 overflow-y-auto"
+            : "hidden md:block"
+        }`}
+      >
+        {/* Filter by Conditions */}
+        <div className={botMargin}>
+          <h3 className="text-lg font-semibold mb-2">Conditions</h3>
+          <RadioButton
+            name="conditions"
+            options={["new", "used", "refurbished"]}
+            selectedOption={selectedConditions}
+            onChange={handleConditionRadioChange}
+          />
+        </div>
+
+        {/* Filter by Location */}
+        <div className={botMargin}>
+          <h3 className="text-lg font-semibold mb-2">Location</h3>
+          <Dropdown
+            label="Location"
+            name="location"
+            value={location}
+            onChange={handleInputChange}
+            options={
+              isLoadingLocation
+                ? [{ label: "Loading...", value: "" }]
+                : [
+                    { label: "Choose a Location", value: "" },
+                    ...locations.map((location) => ({
+                      label: location.name,
+                      value: location._id,
+                    })),
+                  ]
+            }
+            required
+          />
+        </div>
+
+        {/* Filter by Category */}
+        <div className={botMargin}>
+          <h3 className="text-lg font-semibold mb-2">Category</h3>
+          <Dropdown
+            label="Category"
+            name="category"
+            value={category}
+            onChange={handleInputChange}
+            options={
+              isLoadingCategory
+                ? [{ label: "Loading...", value: "" }]
+                : [
+                    { label: "Choose a Category", value: "" },
+                    ...categories.map((category) => ({
+                      label: category.name,
+                      value: category._id,
+                    })),
+                  ]
+            }
+            required
+          />
+        </div>
+
+        {/* Filter by Price Range */}
+        <div className={botMargin}>
+          <h3 className="text-lg font-semibold mb-2">Price Range</h3>
+          <PriceRange
+            min={0}
+            max={1000}
+            step={1}
+            value={priceRange}
+            onChange={handlePriceRangeChange}
+          />
+        </div>
+
+        {/* Filter by Payment Form */}
+        <div className={botMargin}>
+          <h3 className="text-lg font-semibold mb-2">Payment Form</h3>
+          <RadioButton
+            label="Accepts Other Payment Form"
+            name="paymentForm"
+            options={["Items", "Services", "Both", "None"]}
+            selectedOption={paymentForm}
+            onChange={handlePaymentFormChange}
+          />
+        </div>
+
+        {/* Apply and Reset Buttons */}
+        <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:justify-between">
+          <button
+            className="btn btn-primary w-full md:w-auto"
+            onClick={applyFilters}
+          >
+            Apply Filters
+          </button>
+          <button
+            className="btn btn-secondary w-full md:w-auto"
+            onClick={resetFilters}
+          >
+            Reset Filters
+          </button>
+        </div>
+      </div>
+    </>
   );
 };
 

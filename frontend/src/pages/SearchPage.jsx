@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
   const {
     fetchListings,
     searchListings,
@@ -66,9 +66,11 @@ const SearchPage = () => {
   ]);
 
   return (
-    <div className="flex">
+    <div className="flex flex-col lg:flex-row">
       {/* Sidebar with Filters */}
-      <FilterSidebar />
+      <div className="w-full lg:w-1/4 p-4">
+        <FilterSidebar />
+      </div>
 
       {/* Main Content Area */}
       <main className="flex-1 p-4">
