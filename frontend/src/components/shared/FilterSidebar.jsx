@@ -5,32 +5,21 @@ import Dropdown from "./Dropdown";
 import { useLocationStore } from "../../store/useLocationStore";
 import { useCategoryStore } from "../../store/useCategoryStore";
 
-const FilterSidebar = ({ setSearchParams, searchParams }) => {
+const FilterSidebar = () => {
   const { isLoadingLocation, locations, fetchLocations } = useLocationStore();
   const { isLoadingCategory, categories, fetchCategories } = useCategoryStore();
 
-  const [selectedConditions, setSelectedConditions] = useState(
-    searchParams.conditions || ""
-  );
-  const [location, setLocation] = useState(searchParams.location || "");
-  const [category, setCategory] = useState(searchParams.category || "");
-  const [priceRange, setPriceRange] = useState({
-    min: searchParams.min || 0,
-    max: searchParams.max || 1000,
-  });
-  const [paymentForm, setPaymentForm] = useState(
-    searchParams.paymentForm || ""
-  );
+  const [selectedConditions, setSelectedConditions] = useState("");
+  const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("");
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
+  const [paymentForm, setPaymentForm] = useState("");
 
   const handleConditionRadioChange = (selectedOption) =>
     setSelectedConditions(selectedOption);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "location") {
-      setLocation(value);
-    } else if (name === "category") {
-      setCategory(value);
-    }
+    name == "location" ? setLocation(value) : setCategory(value);
   };
   const handlePriceRangeChange = (selectedOption) =>
     setPriceRange(selectedOption);
@@ -48,38 +37,6 @@ const FilterSidebar = ({ setSearchParams, searchParams }) => {
     setCategory("");
     setPriceRange({ min: 0, max: 1000 });
     setPaymentForm("");
-    setSearchParams({});
-    // Reset URL
-    const resetUrl = "http://localhost:5179/listings/search?query=&type=";
-    window.history.pushState(null, "", resetUrl);
-  };
-
-  const buildQueryObject = () => {
-    const params = {};
-
-    if (selectedConditions) {
-      params.conditions = selectedConditions;
-    }
-    if (location) {
-      params.location = location;
-    }
-    if (category) {
-      params.category = category;
-    }
-    if (priceRange.min !== 0 || priceRange.max !== 1000) {
-      params.min = priceRange.min;
-      params.max = priceRange.max;
-    }
-    if (paymentForm) {
-      params.paymentForm = paymentForm;
-    }
-
-    return params;
-  };
-
-  const applyFilters = () => {
-    const queryObject = buildQueryObject();
-    setSearchParams(...searchParams, queryObject);
   };
 
   const botMargin = "mb-6";
@@ -91,7 +48,7 @@ const FilterSidebar = ({ setSearchParams, searchParams }) => {
         <h3>Conditions</h3>
         <RadioButton
           name="conditions"
-          options={["new", "used", "refurbished"]}
+          options={["new", "old", "refurbished"]}
           selectedOption={selectedConditions}
           onChange={handleConditionRadioChange}
         />
@@ -107,13 +64,10 @@ const FilterSidebar = ({ setSearchParams, searchParams }) => {
           options={
             isLoadingLocation
               ? [{ label: "Loading...", value: "" }]
-              : [
-                  { label: "Choose a Location", value: "" },
-                  ...locations.map((location) => ({
-                    label: location.name,
-                    value: location._id,
-                  })),
-                ]
+              : locations.map((location) => ({
+                  label: location.name,
+                  value: location._id,
+                }))
           }
           required
         />
@@ -129,13 +83,10 @@ const FilterSidebar = ({ setSearchParams, searchParams }) => {
           options={
             isLoadingCategory
               ? [{ label: "Loading...", value: "" }]
-              : [
-                  { label: "Choose a Category", value: "" },
-                  ...categories.map((category) => ({
-                    label: category.name,
-                    value: category._id,
-                  })),
-                ]
+              : categories.map((category) => ({
+                  label: category.name,
+                  value: category._id,
+                }))
           }
           required
         />
@@ -165,9 +116,7 @@ const FilterSidebar = ({ setSearchParams, searchParams }) => {
 
       {/* Apply and Reset Buttons */}
       <div className="flex flex-row justify-between">
-        <button className="btn btn-primary" onClick={applyFilters}>
-          Apply
-        </button>
+        <button className="btn btn-primary">Apply</button>
         <button className="btn btn-secondary" onClick={resetFilters}>
           Reset
         </button>

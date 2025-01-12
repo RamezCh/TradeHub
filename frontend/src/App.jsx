@@ -33,6 +33,7 @@ import ListingPage from "./pages/ListingPage";
 import InboxPage from "./pages/InboxPage";
 import AddListingPage from "./pages/AddListingPage";
 import EditListingPage from "./pages/EditListingPage.jsx";
+import SearchResultsPage from "./pages/SearchResultsPage.jsx";
 import RegisterSellerPage from "./pages/RegisterSellerPage.jsx";
 import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 import MyListingsPage from "./pages/MyListingsPage.jsx";
@@ -140,7 +141,7 @@ const App = () => {
           />
           <Route path="/listings/mine" element={<MyListingsPage />} />
           <Route path="/listing/:listingId" element={<ListingPage />} />
-          <Route path="/listings/search" element={<LoggedHomePage />} />
+          <Route path="/listings/search" element={<SearchResultsPage />} />
           <Route
             path="/inbox"
             element={authUser ? <InboxPage /> : <HomePage />}

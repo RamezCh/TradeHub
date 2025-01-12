@@ -331,9 +331,6 @@ export const searchListings = async (req, res) => {
       priceMin,
       priceMax,
       category,
-      condition,
-      location,
-      acceptsOtherPaymentForm,
     } = req.query;
     const skip = (page - 1) * limit;
 
@@ -351,77 +348,31 @@ export const searchListings = async (req, res) => {
       status: "available",
       approvalStatus: "approved", // Only fetch approved listings
       ...(correctedType !== "all" && correctedType && { type: correctedType }),
+      ...(category && { category: { $regex: category, $options: "i" } }),
       ...(priceMin &&
-        !isNaN(priceMin) && {
-          price: { $gte: Number(priceMin) },
-        }),
+        !isNaN(priceMin) && { price: { $gte: Number(priceMin) } }),
       ...(priceMax &&
         !isNaN(priceMax) && {
-          price: {
-            ...(priceMin && !isNaN(priceMin) && { $gte: Number(priceMin) }),
-            $lte: Number(priceMax),
-          },
+          price: { ...searchQuery?.price, $lte: Number(priceMax) },
         }),
-      ...(condition && { condition: { $regex: condition, $options: "i" } }),
-      ...(acceptsOtherPaymentForm && {
-        acceptsOtherPaymentForm: {
-          $regex: acceptsOtherPaymentForm,
-          $options: "i",
-        },
-      }),
-      ...(category && { category }),
-      ...(location && { location }),
       $or: [
         { title: { $regex: query || "", $options: "i" } },
         { description: { $regex: query || "", $options: "i" } },
       ],
     };
 
-    // Fetch total listings count
-    const totalListings = await Listing.countDocuments(searchQuery);
-
-    // Calculate total pages
-    const totalPages = Math.ceil(totalListings / limit);
-
-    // Fetch paginated listings
+    // Search for listings
     const listings = await Listing.find(searchQuery)
-      .populate("seller", "firstName lastName username profileImg createdAt")
-      .populate("location", "name")
-      .populate("category", "name")
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit))
-      .lean();
+      .limit(parseInt(limit));
 
     // Handle empty results
     if (listings.length === 0) {
-      return res.status(200).json({
-        message: "No listings found",
-        totalListings: 0,
-        totalPages: 0,
-        listings: [],
-      });
+      return res.status(200).json({ message: "No listings found" });
     }
 
-    // Transform the listings to include flat data
-    const flatListings = listings.map(
-      ({ seller, location, category, ...rest }) => ({
-        ...rest,
-        providerFirstName: seller?.firstName || null,
-        providerLastName: seller?.lastName || null,
-        providerUsername: seller?.username || null,
-        providerProfileImg: seller?.profileImg || null,
-        providerCreatedAt: seller?.createdAt || null,
-        location: location?.name || null,
-        category: category?.name || null,
-      })
-    );
-
-    res.status(200).json({
-      listings: flatListings,
-      totalListings,
-      totalPages,
-    });
+    res.status(200).json({ listings });
   } catch (error) {
     res
       .status(500)

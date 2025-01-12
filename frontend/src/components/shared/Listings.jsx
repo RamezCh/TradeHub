@@ -3,32 +3,22 @@ import { useEffect, useState } from "react";
 import DetailedItemCard from "./DetailedItemCard";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-const Listings = (type = "all", query = "") => {
+const Listings = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const {
-    fetchListings,
-    searchListings,
-    listings,
-    totalListings,
-    isLoadingListings,
-  } = useListingStore();
+  const { fetchListings, listings, totalListings, isLoadingListings } =
+    useListingStore();
 
   useEffect(() => {
-    if (query) {
-      // page, itemsPerPage, filters, searchQuery
-      searchListings(currentPage, itemsPerPage, type, query);
-    } else {
-      fetchListings(currentPage, itemsPerPage, type);
-    }
-  }, [currentPage, fetchListings, itemsPerPage, type, query, searchListings]);
+    fetchListings(currentPage, itemsPerPage);
+  }, [currentPage, fetchListings, itemsPerPage]);
 
   const totalPages = Math.ceil(totalListings / itemsPerPage);
 
   return (
     <div>
       {isLoadingListings ? (
-        <div className="flex items-center justify-center w-full h-[800px] text-center py-10">
+        <div className="text-center py-10">
           <div className="w-12 h-12 border-2 border-primary border-t-0 rounded-full animate-spin"></div>
         </div>
       ) : listings?.length > 0 ? (

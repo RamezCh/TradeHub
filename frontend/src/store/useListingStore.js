@@ -64,46 +64,6 @@ export const useListingStore = create((set) => ({
     }
   },
 
-  // Search Listings
-  searchListings: async (page, itemsPerPage, filters, searchQuery) => {
-    set({ isLoadingListings: true });
-    console.log(filters);
-    const {
-      type,
-      query,
-      filters: { location, min, max, category, conditions, paymentForm },
-    } = filters;
-    try {
-      const response = await axiosInstance.get("/listings/search", {
-        params: {
-          page,
-          itemsPerPage,
-          type,
-          query,
-          location,
-          priceMin: min,
-          priceMax: max,
-          category,
-          condition: conditions,
-          acceptsOtherPaymentForm: paymentForm,
-          searchQuery,
-        },
-      });
-      const data = response.data;
-
-      set({
-        listings: data.listings,
-        totalListings: data.totalListings,
-        totalListingsPages: data.totalPages,
-      });
-    } catch (err) {
-      set({ error: "Error fetching listings" });
-      toast.error("Error fetching listings", err);
-    } finally {
-      set({ isLoadingListings: false });
-    }
-  },
-
   // Action to fetch a listing by ID
   fetchListingById: async (id) => {
     set({ isLoadingListing: true });
