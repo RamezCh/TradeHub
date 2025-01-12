@@ -37,6 +37,10 @@ import RegisterSellerPage from "./pages/RegisterSellerPage.jsx";
 import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 import MyListingsPage from "./pages/MyListingsPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
+import ContactUsPage from "./pages/ContactUsPage.jsx";
+import AboutUsPage from "./pages/AboutUsPage.jsx";
+import FAQPage from "./pages/FAQPage.jsx";
+
 {
   /* Admin Pages */
 }
@@ -149,6 +153,9 @@ const App = () => {
             path="/inbox/:username"
             element={authUser ? <InboxPage /> : <HomePage />}
           />
+          <Route path="/contact-us" element={<ContactUsPage />} />
+          <Route path="/about-us" element={<AboutUsPage />} />
+          <Route path="/faq" element={<FAQPage />} />
           {/* Admin Routes */}
           <Route
             path="/admin/users"
