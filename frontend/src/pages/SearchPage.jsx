@@ -1,7 +1,7 @@
 import FilterSidebar from "../components/shared/FilterSidebar";
 import Listings from "../components/shared/Listings";
 
-const LoggedHomePage = () => {
+const SearchPage = () => {
   return (
     <div className="flex">
       {/* Sidebar with Filters */}
@@ -16,4 +16,4 @@ const LoggedHomePage = () => {
   );
 };
 
-export default LoggedHomePage;
+export default SearchPage;

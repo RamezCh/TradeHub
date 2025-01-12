@@ -33,10 +33,10 @@ import ListingPage from "./pages/ListingPage";
 import InboxPage from "./pages/InboxPage";
 import AddListingPage from "./pages/AddListingPage";
 import EditListingPage from "./pages/EditListingPage.jsx";
-import SearchResultsPage from "./pages/SearchResultsPage.jsx";
 import RegisterSellerPage from "./pages/RegisterSellerPage.jsx";
 import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 import MyListingsPage from "./pages/MyListingsPage.jsx";
+import SearchPage from "./pages/SearchPage.jsx";
 {
   /* Admin Pages */
 }
@@ -46,7 +46,6 @@ import AdminPendingListingsPage from "./pages/Admin/AdminPendingListingsPage.jsx
 import AdminListingPage from "./pages/Admin/AdminListingPage.jsx";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage.jsx";
 import AdminUserProfile from "./pages/Admin/AdminUserProfile.jsx";
-import LoggedHomePage from "./pages/LoggedHomePage.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -110,7 +109,7 @@ const App = () => {
               ) : authUser.isAdmin ? (
                 <AdminHomePage />
               ) : (
-                <LoggedHomePage />
+                <SearchPage />
               )
             }
           />
@@ -141,7 +140,7 @@ const App = () => {
           />
           <Route path="/listings/mine" element={<MyListingsPage />} />
           <Route path="/listing/:listingId" element={<ListingPage />} />
-          <Route path="/listings/search" element={<SearchResultsPage />} />
+          <Route path="/listings/search" element={<SearchPage />} />
           <Route
             path="/inbox"
             element={authUser ? <InboxPage /> : <HomePage />}
