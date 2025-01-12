@@ -1,10 +1,24 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const SearchBar = ({
-  dropdownOptions = ["All", "Items", "Services"],
-  onSearch,
-  placeholder = "Search",
-}) => {
+const SearchBar = (props) => {
+  const {
+    dropdownOptions = ["All", "Items", "Services"],
+    onSearch,
+    placeholder = "Search",
+  } = props;
+
+  const navigate = useNavigate();
+  const handleSearchParent =
+    onSearch ||
+    ((query, type) => {
+      navigate(
+        `/listings/search?query=${encodeURIComponent(
+          query
+        )}&type=${encodeURIComponent(type)}`
+      );
+    });
+
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
   const [dropDownValue, setDropDownValue] = useState(dropdownOptions[0]);
   const [searchValue, setSearchValue] = useState("");
@@ -23,11 +37,11 @@ const SearchBar = ({
   };
 
   const handleSearch = () => {
-    if (searchValue.trim() && onSearch) {
-      onSearch(searchValue, dropDownValue);
+    if (searchValue.trim() && handleSearchParent) {
+      handleSearchParent(searchValue, dropDownValue);
       setSearchValue("");
     } else {
-      onSearch("", "");
+      handleSearchParent("", "");
     }
   };
 
