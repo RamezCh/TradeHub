@@ -1,18 +1,14 @@
-import { useListingStore } from "../../store/useListingStore";
-import { useEffect, useState } from "react";
 import DetailedItemCard from "./DetailedItemCard";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-const Listings = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const { fetchListings, listings, totalListings, isLoadingListings } =
-    useListingStore();
-
-  useEffect(() => {
-    fetchListings(currentPage, itemsPerPage);
-  }, [currentPage, fetchListings, itemsPerPage]);
-
+const Listings = ({
+  listings,
+  totalListings,
+  isLoadingListings,
+  currentPage,
+  setCurrentPage,
+  itemsPerPage,
+}) => {
   const totalPages = Math.ceil(totalListings / itemsPerPage);
 
   return (

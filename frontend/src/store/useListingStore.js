@@ -64,6 +64,25 @@ export const useListingStore = create((set) => ({
     }
   },
 
+  // Search Listings
+  searchListings: async (page, limit, query) => {
+    set({ isLoadingListings: true });
+
+    try {
+      const response = await axiosInstance.get(`/listings/search`, {
+        params: { page, limit, query },
+      });
+      const data = response.data;
+
+      set({ listings: data.listings });
+    } catch (err) {
+      set({ error: "Error fetching listings" });
+      toast.error("Error fetching listings", err);
+    } finally {
+      set({ isLoadingListings: false });
+    }
+  },
+
   // Action to fetch a listing by ID
   fetchListingById: async (id) => {
     set({ isLoadingListing: true });

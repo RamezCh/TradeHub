@@ -331,6 +331,9 @@ export const searchListings = async (req, res) => {
       priceMin,
       priceMax,
       category,
+      location,
+      condition,
+      acceptsOtherPaymentForm,
     } = req.query;
     const skip = (page - 1) * limit;
 
@@ -343,18 +346,47 @@ export const searchListings = async (req, res) => {
         : correctedType;
     }
 
+    // Validate `condition` against enum values
+    let validatedCondition = condition?.toLowerCase() || null;
+    if (validatedCondition) {
+      const allowedConditions = ["new", "used", "refurbished"];
+      if (!allowedConditions.includes(validatedCondition)) {
+        return res.status(400).json({
+          message: "Invalid condition value",
+          allowedValues: allowedConditions,
+        });
+      }
+    }
+
+    // Validate `acceptsOtherPaymentForm` against enum values
+    let validatedPaymentForm = acceptsOtherPaymentForm?.toLowerCase() || null;
+    if (validatedPaymentForm) {
+      const allowedPaymentForms = ["items", "services", "both", "none"];
+      if (!allowedPaymentForms.includes(validatedPaymentForm)) {
+        return res.status(400).json({
+          message: "Invalid payment form value",
+          allowedValues: allowedPaymentForms,
+        });
+      }
+    }
+
     // Build the dynamic query object
     const searchQuery = {
       status: "available",
-      approvalStatus: "approved", // Only fetch approved listings
+      approvalStatus: "approved",
       ...(correctedType !== "all" && correctedType && { type: correctedType }),
-      ...(category && { category: { $regex: category, $options: "i" } }),
+      ...(category && { category }),
+      ...(location && { location }),
       ...(priceMin &&
         !isNaN(priceMin) && { price: { $gte: Number(priceMin) } }),
       ...(priceMax &&
         !isNaN(priceMax) && {
           price: { ...searchQuery?.price, $lte: Number(priceMax) },
         }),
+      ...(validatedCondition && { condition: validatedCondition }),
+      ...(validatedPaymentForm && {
+        acceptsOtherPaymentForm: validatedPaymentForm,
+      }),
       $or: [
         { title: { $regex: query || "", $options: "i" } },
         { description: { $regex: query || "", $options: "i" } },
@@ -363,16 +395,42 @@ export const searchListings = async (req, res) => {
 
     // Search for listings
     const listings = await Listing.find(searchQuery)
+      .populate("seller", "firstName lastName username profileImg createdAt")
+      .populate("location", "name")
+      .populate("category", "name")
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .lean();
+
+    const totalListings = await Listing.countDocuments(searchQuery);
 
     // Handle empty results
     if (listings.length === 0) {
       return res.status(200).json({ message: "No listings found" });
     }
 
-    res.status(200).json({ listings });
+    // Flatten the listings
+    const flatListings = listings.map(
+      ({ seller, location, category, ...rest }) => ({
+        ...rest,
+        providerFirstName: seller?.firstName || null,
+        providerLastName: seller?.lastName || null,
+        providerUsername: seller?.username || null,
+        providerProfileImg: seller?.profileImg || null,
+        providerCreatedAt: seller?.createdAt || null,
+        location: location?.name || null,
+        category: category?.name || null,
+      })
+    );
+
+    const totalPages = Math.ceil(totalListings / limit);
+
+    res.status(200).json({
+      listings: flatListings,
+      totalListings,
+      totalPages,
+    });
   } catch (error) {
     res
       .status(500)
