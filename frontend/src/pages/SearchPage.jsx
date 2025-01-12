@@ -28,11 +28,34 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (query) {
-      searchListings(1, itemsPerPage, query);
+      searchListings(currentPage, itemsPerPage, {
+        query,
+        type,
+        priceMin,
+        priceMax,
+        category,
+        location,
+        condition,
+        acceptsOtherPaymentForm,
+      });
     } else {
       fetchListings(currentPage, itemsPerPage);
     }
-  }, [currentPage, fetchListings, itemsPerPage, query, searchListings]);
+  }, [
+    currentPage,
+    fetchListings,
+    itemsPerPage,
+    query,
+    searchListings,
+    type,
+    priceMin,
+    priceMax,
+    category,
+    location,
+    condition,
+    acceptsOtherPaymentForm,
+  ]);
+
   return (
     <div className="flex">
       {/* Sidebar with Filters */}

@@ -67,10 +67,11 @@ export const useListingStore = create((set) => ({
   // Search Listings
   searchListings: async (page, limit, query) => {
     set({ isLoadingListings: true });
+    console.log("searchListings", query);
 
     try {
       const response = await axiosInstance.get(`/listings/search`, {
-        params: { page, limit, query },
+        params: { page, limit, ...query },
       });
       const data = response.data;
 

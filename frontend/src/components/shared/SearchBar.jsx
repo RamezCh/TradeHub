@@ -12,11 +12,10 @@ const SearchBar = (props) => {
   const handleSearchParent =
     onSearch ||
     ((query, type) => {
-      navigate(
-        `/listings/search?query=${encodeURIComponent(
-          query
-        )}&type=${encodeURIComponent(type)}`
-      );
+      const queryParam = query ? `query=${encodeURIComponent(query)}` : "";
+      const typeParam = type ? `type=${encodeURIComponent(type)}` : "";
+      const searchParams = [queryParam, typeParam].filter(Boolean).join("&");
+      navigate(`/listings/search?${searchParams}`);
     });
 
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
@@ -37,12 +36,8 @@ const SearchBar = (props) => {
   };
 
   const handleSearch = () => {
-    if (searchValue.trim() && handleSearchParent) {
-      handleSearchParent(searchValue, dropDownValue);
-      setSearchValue("");
-    } else {
-      handleSearchParent("", "");
-    }
+    handleSearchParent(searchValue.trim(), dropDownValue);
+    setSearchValue("");
   };
 
   const handleKeyDown = (e) => {

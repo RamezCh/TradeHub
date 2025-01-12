@@ -100,7 +100,7 @@ const FilterSidebar = () => {
         <h3>Conditions</h3>
         <RadioButton
           name="conditions"
-          options={["new", "old", "refurbished"]}
+          options={["new", "used", "refurbished"]}
           selectedOption={selectedConditions}
           onChange={handleConditionRadioChange}
         />
@@ -175,10 +175,10 @@ const FilterSidebar = () => {
       {/* Apply and Reset Buttons */}
       <div className="flex flex-row justify-between">
         <button className="btn btn-primary" onClick={applyFilters}>
-          Apply
+          Apply Filters
         </button>
         <button className="btn btn-secondary" onClick={resetFilters}>
-          Reset
+          Reset Filters
         </button>
       </div>
     </div>
