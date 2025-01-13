@@ -26,7 +26,10 @@ export const getNotification = async (req, res) => {
 export const getNotifications = async (req, res) => {
   try {
     const userId = req.user._id;
-    const notifications = await Notification.find({ user: userId }).sort({
+    const notifications = await Notification.find({
+      user: userId,
+      readStatus: false,
+    }).sort({
       createdAt: -1,
     });
 

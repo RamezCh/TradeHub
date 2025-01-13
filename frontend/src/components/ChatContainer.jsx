@@ -17,6 +17,7 @@ const ChatContainer = () => {
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   useEffect(() => {
     getMessages(selectedUser.username);
@@ -32,8 +33,9 @@ const ChatContainer = () => {
   ]);
 
   useEffect(() => {
-    if (messageEndRef.current && messages) {
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -54,7 +56,10 @@ const ChatContainer = () => {
     <div className="flex-1 flex flex-col overflow-auto">
       <ChatHeader />
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-4"
+      >
         {safeMessages.length > 0 ? (
           safeMessages.map((message) => (
             <div
@@ -62,7 +67,6 @@ const ChatContainer = () => {
               className={`chat ${
                 message.senderId === authUser._id ? "chat-end" : "chat-start"
               }`}
-              ref={messageEndRef}
             >
               <div className="chat-image avatar">
                 <div className="size-10 rounded-full border">
@@ -97,6 +101,7 @@ const ChatContainer = () => {
         ) : (
           <div>No messages to display.</div>
         )}
+        <div ref={messageEndRef} />
       </div>
 
       <MessageInput />
