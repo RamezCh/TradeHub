@@ -1,4 +1,3 @@
-// src/pages/ListingPage.jsx
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useListingStore } from "../store/useListingStore";
@@ -27,6 +26,7 @@ const ListingPage = () => {
     providerProfileImg,
     providerCreatedAt,
     title,
+    price,
     createdAt,
     images,
     status,
@@ -37,6 +37,7 @@ const ListingPage = () => {
     type,
     acceptsOtherPaymentForm,
     _id: doNotMatchID,
+    providerId,
   } = listing;
 
   return (
@@ -46,9 +47,14 @@ const ListingPage = () => {
         <div className="lg:col-span-2">
           <ListingCard
             title={title}
+            price={price}
             createdAt={createdAt}
             images={images}
             status={status}
+            sellerFullName={`${providerFirstName} ${providerLastName}`}
+            listingId={listingId}
+            receiver={providerId}
+            receiverUsername={providerUsername}
           />
         </div>
 

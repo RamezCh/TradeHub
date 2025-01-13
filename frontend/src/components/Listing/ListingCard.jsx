@@ -1,9 +1,12 @@
 import { BadgeCheck, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import OfferModal from "../shared/OfferModal";
 import ImageCarousel from "./ImageCarousel";
 
 const ListingCard = ({
   title,
+  price,
   createdAt,
   images,
   status,
@@ -11,7 +14,11 @@ const ListingCard = ({
   btnText = "Initiate Offer",
   sellerFullName,
   layout = "horizontal",
+  listingId,
+  receiver,
+  receiverUsername,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const formattedDate = new Date(createdAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -26,34 +33,51 @@ const ListingCard = ({
     );
 
   return (
-    <div
-      className={`card ${
-        layout === "vertical" ? "" : "lg:card-side"
-      } bg-base-100 shadow-xl`}
-    >
-      <figure
-        className={`h-64 ${
-          layout === "vertical" ? "w-full" : "w-full lg:w-1/3"
-        } overflow-hidden`}
+    <>
+      <div
+        className={`card ${
+          layout === "vertical" ? "" : "lg:card-side"
+        } bg-base-100 shadow-xl`}
       >
-        <ImageCarousel images={images} />
-      </figure>
-      <div className="card-body">
-        <h2 className="card-title text-2xl">{title}</h2>
-        <p className="text-sm text-gray-500">
-          Listed on {formattedDate} by {sellerFullName}
-        </p>
-        <div className="mt-2 flex justify-between items-center">
-          <span className={`badge gap-2 p-3 ${badgeStyles}`}>
-            {statusIcon}
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </span>
-          <Link to={linkPath}>
-            <button className="btn btn-sm btn-outline">{btnText}</button>
-          </Link>
+        <figure
+          className={`h-64 ${
+            layout === "vertical" ? "w-full" : "w-full lg:w-1/3"
+          } overflow-hidden`}
+        >
+          <ImageCarousel images={images} />
+        </figure>
+        <div className="card-body">
+          <h2 className="text-primary card-title text-2xl">{title}</h2>
+          <p className="text-sm text-accent">
+            Listed on {formattedDate} by {sellerFullName}
+          </p>
+          <p className="text-secondary">Price: {price}$</p>
+          <div className="mt-2 flex justify-between items-center">
+            <span className={`badge gap-2 p-3 ${badgeStyles}`}>
+              {statusIcon}
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </span>
+            <Link to={linkPath}>
+              <button
+                className="btn btn-sm btn-outline"
+                onClick={() => setIsModalOpen(true)}
+              >
+                {btnText}
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+      {/* Render the modal */}
+      {isModalOpen && (
+        <OfferModal
+          listingId={listingId}
+          receiver={receiver}
+          receiverUsername={receiverUsername}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
+    </>
   );
 };
 

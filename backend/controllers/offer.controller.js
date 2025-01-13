@@ -3,77 +3,72 @@ import Listing from "../models/Listing.js";
 import User from "../models/User.js";
 import Message from "../models/Message.js";
 import { createNotification } from "../lib/createNotification.js";
+import { createAudit } from "../lib/createAudit.js";
 
 export const createOffer = async (req, res) => {
-  const { listingId, toUserId, offerDetails } = req.body;
-  const offerType = req.body.offerType.toLowerCase();
-  const fromUserId = req.user._id;
+  const { listingId, receiver, details } = req.body;
+  const type = req.body.type.toLowerCase();
+  const sender = req.user._id;
+
   try {
-    // Check if the listing exists
     const listing = await Listing.findById(listingId);
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });
     }
-    // Check if the toUser exists
-    const toUser = await User.findById(toUserId);
-    if (!toUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Check if the fromUser is the owner of the listing
-    if (listing.providerId.toString() === fromUserId.toString()) {
-      return res.status(400).json({
-        message: "You cannot make an offer on your own listing",
-      });
-    }
-
-    // Check if the listing is active
     if (listing.status !== "available") {
-      return res.status(400).json({
-        message: "You cannot make an offer on an inactive listing",
-      });
+      return res.status(400).json({ message: "Listing is not active" });
+    }
+    if (receiver.toString() === sender.toString()) {
+      return res.status(400).json({ message: "You can't offer to yourself" });
     }
 
-    // Check if offer already exists
+    const receiverUser = await User.findById(receiver);
+    if (!receiverUser) {
+      return res.status(404).json({ message: "Receiver not found" });
+    }
+
     const existingOffer = await Offer.findOne({
       listingId,
-      fromUserId,
-      toUserId,
+      sender,
+      receiver: receiverUser._id,
+      type,
+      status: "pending",
     });
-
     if (existingOffer) {
-      return res.status(400).json({
-        message: "You have already made an offer on this listing",
-      });
+      return res.status(400).json({ message: "You already made an offer" });
     }
 
-    // Create a chat for the offer
-    const message = new Message({
-      senderId: fromUserId,
-      receiverId: toUserId,
-      text:
-        "Hello there! I am interested in your listing with the title " +
-        listing.title,
-      image: listing.images[0],
-    });
-    await message.save();
-
-    // Create the offer
     const offer = new Offer({
       listingId,
-      fromUserId,
-      toUserId,
-      offerType,
-      offerDetails,
+      sender,
+      receiver: receiverUser._id,
+      type,
+      details,
     });
     await offer.save();
 
-    // Create a notification for the toUser
+    const senderUser = await User.findById(sender);
+
     await createNotification(
-      toUserId,
-      "You have received an offer",
+      receiver,
+      "You have a new offer",
       "pending_offer",
-      `/offers/${offer._id}`
+      `/inbox/${senderUser.username}` // using chat because offers handled in chat
+    );
+
+    await Message.create({
+      senderId: sender,
+      receiverId: receiver,
+      text: details,
+      image: listing.images[0],
+    });
+
+    await createAudit(
+      "Created",
+      "offer",
+      offer._id,
+      sender,
+      `Offer created by ${sender} for listing ${listing.title} to ${receiver}`
     );
 
     res.status(201).json(offer);

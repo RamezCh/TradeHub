@@ -7,25 +7,26 @@ const offerSchema = new mongoose.Schema(
       ref: "Listing",
       required: true,
     },
-    fromUserId: {
+    sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    toUserId: {
+    receiver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    offerType: {
+    type: {
       type: String,
-      enum: ["item", "service", "cash"],
+      enum: ["item", "service", "cash", "mixed"],
       required: true,
     },
-    offerDetails: { type: String }, // Description or details of the offer
+    details: { type: String },
+    agreedOn: { type: String },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected"],
+      enum: ["pending", "accepted", "rejected", "cancelled", "completed"],
       default: "pending",
     },
   },

@@ -265,7 +265,10 @@ export const getListing = async (req, res) => {
 
     // Fetch the listing, populate seller, location, and category fields
     const listing = await Listing.findById(id)
-      .populate("seller", "firstName lastName username profileImg createdAt")
+      .populate(
+        "seller",
+        "_id firstName lastName username profileImg createdAt"
+      )
       .populate("location", "name") // Populate location to get name
       .populate("category", "name") // Populate category to get name
       .lean();
@@ -278,6 +281,7 @@ export const getListing = async (req, res) => {
     const { seller, location, category, ...restListing } = listing;
     const flatListing = {
       ...restListing,
+      providerId: seller._id,
       providerFirstName: seller.firstName,
       providerLastName: seller.lastName,
       providerUsername: seller.username,
