@@ -28,13 +28,6 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
-    balance: { type: Number, default: 0 },
-    balanceHistory: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "BalanceHistory",
-      },
-    ],
     rating: { type: Number, default: 0 },
     favProviders: [
       {

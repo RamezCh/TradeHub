@@ -1,6 +1,6 @@
 import express from "express";
 import { protectRoute } from "../middleware/authMiddleware.js";
-import { createOffer } from "../controllers/offer.controller.js";
+import { createOffer, replyToOffer } from "../controllers/offer.controller.js";
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ router.post("/create", protectRoute, createOffer); // works, tested
 // router.get("/", protectRoute, getOffers); // works, tested
 
 // Reply to an offer
-// router.post("/:id/reply", protectRoute, replyToOffer); // works, tested
+router.put("/reply/:username", protectRoute, replyToOffer); // works, tested
 
 // Get a specific offer by id
 // router.get("/:id", protectRoute, getOffer); // works, tested

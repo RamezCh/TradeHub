@@ -44,7 +44,7 @@ const ChatContainer = () => {
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
         <MessageSkeleton />
-        <MessageInput />
+        <MessageInput username={selectedUser.username} />
       </div>
     );
   }
@@ -104,7 +104,7 @@ const ChatContainer = () => {
         <div ref={messageEndRef} />
       </div>
 
-      <MessageInput />
+      <MessageInput username={selectedUser.username} />
     </div>
   );
 };

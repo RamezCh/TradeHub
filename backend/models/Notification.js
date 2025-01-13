@@ -11,6 +11,7 @@ const notificationSchema = new mongoose.Schema(
         "pending_offer",
         "maintenance",
         "new_message",
+        "offer_status_change",
         "order_complete",
       ],
       required: true,

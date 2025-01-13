@@ -77,3 +77,59 @@ export const createOffer = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const replyToOffer = async (req, res) => {
+  const { username } = req.params;
+  const { status } = req.body;
+  const receiver = req.user._id;
+
+  const normalizedStatus = status.trim().toLowerCase();
+
+  const validStatuses = ["accepted", "rejected", "cancelled", "completed"];
+  if (!validStatuses.includes(normalizedStatus)) {
+    return res.status(400).json({ message: "Invalid status" });
+  }
+
+  try {
+    const sender = await User.findOne({ username });
+    if (!sender) {
+      return res.status(404).json({ message: "Sender not found" });
+    }
+
+    const offer = await Offer.findOne({
+      sender: sender._id,
+      receiver,
+      status: "pending",
+    });
+    if (!offer) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    // Update offer status
+    offer.status = normalizedStatus;
+    await offer.save();
+
+    const receiverUser = await User.findById(receiver);
+    // Create notification
+    await createNotification(
+      sender._id,
+      `Offer ${normalizedStatus}`,
+      "offer_status_change",
+      `/inbox/${receiverUser.username}`
+    );
+
+    // Create audit log
+    await createAudit(
+      "Edited",
+      "offer",
+      offer._id,
+      receiver,
+      `Offer ${normalizedStatus} by ${receiver} for listing ${offer.listingId} to ${sender.username}`
+    );
+
+    res.status(200).json(offer);
+  } catch (error) {
+    console.error("Error replying to offer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
