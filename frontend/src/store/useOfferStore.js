@@ -4,6 +4,11 @@ import toast from "react-hot-toast";
 
 export const useOfferStore = create((set) => ({
   isLoading: false,
+  offers: [],
+  totalPages: 1,
+  currentPage: 1,
+  offer: null,
+  codeToScan: "",
 
   createOffer: async (listingId, receiver, type, details) => {
     set({ isLoading: true });
@@ -38,14 +43,21 @@ export const useOfferStore = create((set) => ({
     }
   },
 
-  confirmOffer: async (offerId, code) => {
+  getOffers: async (status, page = 1, limit = 10) => {
     set({ isLoading: true });
     try {
-      const response = await axiosInstance.post(`/offers/${offerId}/confirm`, {
-        code,
+      const response = await axiosInstance.get("/offers", {
+        params: {
+          status,
+          page,
+          limit,
+        },
       });
-      toast.success("Offer confirmed successfully");
-      return response.data.offer;
+      set({
+        offers: response.data.data,
+        totalPages: response.data.totalPages,
+        currentPage: response.data.currentPage,
+      });
     } catch (error) {
       toast.error(error?.response?.data?.message || "Internal server error");
       throw error;
@@ -53,4 +65,37 @@ export const useOfferStore = create((set) => ({
       set({ isLoading: false });
     }
   },
+
+  getOffer: async (offerId) => {
+    set({ isLoading: true });
+    try {
+      const response = await axiosInstance.get(`/offers/${offerId}`);
+      const { offer, codeToScan } = response.data;
+      set({ offer });
+      set({ codeToScan });
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Internal server error");
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  confirmOffer: async (offerId, code) => {
+    set({ isLoading: true });
+    try {
+      const response = await axiosInstance.post(`/offers/${offerId}/confirm`, {
+        code,
+      });
+      toast.success("Offer confirmed successfully");
+      set({ offer: response.data.offer });
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Internal server error");
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  setCurrentPage: (page) => set({ currentPage: page }),
 }));

@@ -1,7 +1,7 @@
 import { BadgeCheck, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import OfferModal from "../shared/OfferModal";
+import OfferModal from "../Offers Page/OfferModal";
 import ImageCarousel from "./ImageCarousel";
 
 const ListingCard = ({

@@ -41,6 +41,7 @@ import ContactUsPage from "./pages/ContactUsPage.jsx";
 import AboutUsPage from "./pages/AboutUsPage.jsx";
 import FAQPage from "./pages/FAQPage.jsx";
 import OfferConfirmationPage from "./pages/OfferConfirmationPage.jsx";
+import OffersPage from "./pages/OffersPage.jsx";
 
 {
   /* Admin Pages */
@@ -161,6 +162,7 @@ const App = () => {
             path="/offers/:offerId/confirm"
             element={<OfferConfirmationPage />}
           />
+          <Route path="/offers" element={<OffersPage />} />
           {/* Admin Routes */}
           <Route
             path="/admin/users"

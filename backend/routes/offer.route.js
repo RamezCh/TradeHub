@@ -5,6 +5,7 @@ import {
   replyToOffer,
   confirmOffer,
   getOffer,
+  getOffers,
 } from "../controllers/offer.controller.js";
 
 const router = express.Router();
@@ -13,7 +14,7 @@ const router = express.Router();
 router.post("/create", protectRoute, createOffer); // works, tested
 
 // Get offers for the logged in user
-// router.get("/", protectRoute, getOffers); // works, tested
+router.get("/", protectRoute, getOffers);
 
 // Reply to an offer
 router.put("/reply/:username", protectRoute, replyToOffer); // works, tested

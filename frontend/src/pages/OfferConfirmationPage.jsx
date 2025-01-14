@@ -1,38 +1,41 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { axiosInstance } from "../lib/axios.js";
-import QRCode from "../components/shared/QRCode.jsx";
-import ConfirmOfferForm from "../components/shared/ConfirmOfferForm.jsx";
+import { useOfferStore } from "../store/useOfferStore";
+import QRCode from "../components/Offers Page/QRCode.jsx";
+import ConfirmOfferForm from "../components/Offers Page/ConfirmOfferForm.jsx";
 
 const OfferConfirmationPage = () => {
   const { offerId } = useParams();
-  const [offer, setOffer] = useState(null);
-  const [codeToScan, setCodeToScan] = useState("");
+  const { isLoading, offer, codeToScan, getOffer } = useOfferStore();
 
   useEffect(() => {
-    const fetchOffer = async () => {
-      try {
-        const response = await axiosInstance.get(`/offers/${offerId}`);
-        setOffer(response.data.offer);
-        setCodeToScan(response.data.codeToScan);
-      } catch (error) {
-        console.error("Error fetching offer:", error);
-      }
-    };
-    fetchOffer();
-  }, [offerId]);
+    if (offerId) {
+      getOffer(offerId);
+    }
+  }, [offerId, getOffer]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <p className="text-lg text-neutral-500 ml-4">
+          Loading offer details...
+        </p>
+      </div>
+    );
+  }
 
   if (!offer) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <p className="text-lg text-neutral-500">Loading offer details...</p>
+        <p className="text-lg text-neutral-500">Offer not found.</p>
       </div>
     );
   }
 
   if (
-    offer.senderConfirmation.confirmed &&
-    offer.receiverConfirmation.confirmed
+    offer.senderConfirmation?.confirmed &&
+    offer.receiverConfirmation?.confirmed
   ) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -60,8 +63,14 @@ const OfferConfirmationPage = () => {
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* QR Code Section */}
-        <div className="card bg-base-200 shadow-lg p-6">
-          <h2 className="text-xl font-semibold text-secondary mb-4">
+        <section
+          aria-labelledby="qr-code-heading"
+          className="card bg-base-200 shadow-lg p-6"
+        >
+          <h2
+            id="qr-code-heading"
+            className="text-xl font-semibold text-secondary mb-4"
+          >
             Scan this QR Code
           </h2>
           <p className="text-neutral-600 mb-4">
@@ -71,11 +80,17 @@ const OfferConfirmationPage = () => {
           <div className="flex justify-center">
             <QRCode code={codeToScan} />
           </div>
-        </div>
+        </section>
 
         {/* Confirmation Form Section */}
-        <div className="flex flex-col justify-evenly bg-base-200 rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-semibold text-secondary mb-4">
+        <section
+          aria-labelledby="confirmation-form-heading"
+          className="flex flex-col justify-evenly bg-base-200 rounded-2xl shadow-lg p-6"
+        >
+          <h2
+            id="confirmation-form-heading"
+            className="text-xl font-semibold text-secondary mb-4"
+          >
             Confirm Your Offer
           </h2>
           <p className="text-neutral-600 mb-4">
@@ -85,7 +100,7 @@ const OfferConfirmationPage = () => {
           <div className="w-full">
             <ConfirmOfferForm offerId={offerId} />
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

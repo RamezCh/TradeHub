@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useOfferStore } from "../../store/useOfferStore";
-import InputField from "./InputField";
+import InputField from "../shared/InputField";
 import QrScanner from "react-qr-scanner";
 
 const ConfirmOfferForm = ({ offerId }) => {
   const [code, setCode] = useState("");
   const [showScanner, setShowScanner] = useState(false);
-  const confirmOffer = useOfferStore((state) => state.confirmOffer);
+  const { confirmOffer } = useOfferStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

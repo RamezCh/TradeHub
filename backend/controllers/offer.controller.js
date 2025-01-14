@@ -134,6 +134,48 @@ export const replyToOffer = async (req, res) => {
   }
 };
 
+export const getOffers = async (req, res) => {
+  try {
+    const { status, page = 1, limit = 10 } = req.query;
+    const userId = req.user._id;
+
+    const filter = {
+      $or: [{ sender: userId }, { receiver: userId }],
+    };
+    if (status) {
+      filter.status = status;
+    }
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const totalOffers = await Offer.countDocuments(filter);
+
+    const totalPages = Math.ceil(totalOffers / limitNumber);
+
+    const offers = await Offer.find(filter)
+      .skip(skip)
+      .limit(limitNumber)
+      .populate("listingId", "title images")
+      .populate("sender", "firstName lastName username email")
+      .populate("receiver", "firstName lastName username email");
+
+    res.status(200).json({
+      success: true,
+      data: offers,
+      totalPages,
+      currentPage: pageNumber,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch offers",
+      error: error.message,
+    });
+  }
+};
+
 export const getOffer = async (req, res) => {
   const { offerId } = req.params;
   const userId = req.user._id;
