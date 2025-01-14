@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
-export const useOfferStore = create((set) => ({
+export const useOfferStore = create((set, get) => ({
   isLoading: false,
   offers: [],
   totalPages: 1,
@@ -33,8 +33,8 @@ export const useOfferStore = create((set) => ({
       await axiosInstance.put(`/offers/reply/${username}`, {
         status,
       });
-
       toast.success("Offer replied to successfully");
+      get().getOffers();
     } catch (error) {
       toast.error(error?.message || "Internal server error");
       throw error;
@@ -102,6 +102,22 @@ export const useOfferStore = create((set) => ({
     try {
       await axiosInstance.post(`/listings/review/${listingId}`, review);
       toast.success("Review submitted successfully");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Internal server error");
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  cancelOffer: async (offerId) => {
+    set({ isLoading: true });
+    try {
+      await axiosInstance.put(`/offers/cancel/${offerId}`);
+      set((state) => ({
+        offers: state.offers.filter((offer) => offer._id !== offerId),
+      }));
+      toast.success("Offer cancelled successfully");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Internal server error");
       throw error;

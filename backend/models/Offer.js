@@ -26,7 +26,7 @@ const offerSchema = new mongoose.Schema(
     details: { type: String },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "completed"],
+      enum: ["pending", "accepted", "rejected", "cancelled", "completed"],
       default: "pending",
     },
 

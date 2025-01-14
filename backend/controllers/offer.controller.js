@@ -134,6 +134,46 @@ export const replyToOffer = async (req, res) => {
   }
 };
 
+export const cancelOffer = async (req, res) => {
+  const { offerId } = req.params;
+  const sender = req.user._id;
+
+  try {
+    const offer = await Offer.findById(offerId);
+    if (!offer) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    if (offer.sender.toString() !== sender.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    offer.status = "cancelled";
+    await offer.save();
+
+    const receiver = await User.findById(offer.receiver);
+    await createNotification(
+      offer.receiver,
+      "Offer cancelled",
+      "offer_status_change",
+      `/inbox/${sender.username}`
+    );
+
+    await createAudit(
+      "Edited",
+      "offer",
+      offer._id,
+      sender,
+      `Offer cancelled by ${sender} for listing ${offer.listingId} to ${receiver.username}`
+    );
+
+    res.status(200).json(offer);
+  } catch (error) {
+    console.error("Error cancelling offer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const getOffers = async (req, res) => {
   try {
     const { status, page = 1, limit = 10 } = req.query;

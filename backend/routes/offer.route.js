@@ -6,6 +6,7 @@ import {
   confirmOffer,
   getOffer,
   getOffers,
+  cancelOffer,
 } from "../controllers/offer.controller.js";
 
 const router = express.Router();
@@ -15,6 +16,9 @@ router.post("/create", protectRoute, createOffer); // works, tested
 
 // Get offers for the logged in user
 router.get("/", protectRoute, getOffers);
+
+// Cancel an offer
+router.put("/cancel/:offerId", protectRoute, cancelOffer);
 
 // Reply to an offer
 router.put("/reply/:username", protectRoute, replyToOffer); // works, tested

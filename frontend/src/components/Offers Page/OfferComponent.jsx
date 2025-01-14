@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useOfferStore } from "../../store/useOfferStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import { useChatStore } from "../../store/useChatStore";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const OfferComponent = ({ offer }) => {
+  const { authUser } = useAuthStore();
   const {
     _id,
     listingId,
@@ -25,13 +27,17 @@ const OfferComponent = ({ offer }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Store hooks
-  const { replyToOffer, isLoading } = useOfferStore();
-  const { sendMessage } = useChatStore();
+  const { replyToOffer, cancelOffer, isLoading } = useOfferStore();
+  const { sendMessage, setSelectedUser, selectedUser } = useChatStore();
+
+  useEffect(() => {
+    setSelectedUser({ username: sender.username });
+  }, [sender.username, setSelectedUser]);
 
   const handleReplyToOffer = async (e) => {
     e.preventDefault();
     try {
-      await replyToOffer(_id, replyStatus);
+      await replyToOffer(selectedUser.username, replyStatus);
       setIsModalOpen(false);
       if (replyMessage.trim()) {
         await sendMessage({
@@ -44,6 +50,16 @@ const OfferComponent = ({ offer }) => {
       toast.error("Failed to reply to offer");
     }
   };
+
+  const handleCancelOffer = async () => {
+    try {
+      await cancelOffer(_id);
+    } catch (error) {
+      console.error("Failed to cancel offer:", error);
+    }
+  };
+
+  const isSender = sender._id === authUser._id;
 
   return (
     <div className="card bg-base-200 shadow-xl my-4">
@@ -115,12 +131,23 @@ const OfferComponent = ({ offer }) => {
         <div className="card-actions justify-end mt-4">
           {status === "pending" && (
             <>
-              <button
-                className="btn btn-primary"
-                onClick={() => setIsModalOpen(true)}
-              >
-                Reply to Offer
-              </button>
+              {!isSender && (
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Reply to Offer
+                </button>
+              )}
+              {isSender && (
+                <button
+                  className="btn btn-error"
+                  onClick={handleCancelOffer}
+                  disabled={isLoading}
+                >
+                  Cancel Offer
+                </button>
+              )}
             </>
           )}
           {status === "accepted" && (
