@@ -6,8 +6,8 @@ const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const [selectedCoverImg, setSelectedCoverImg] = useState(null);
-  const [isEditingBio, setIsEditingBio] = useState(false); // State for editing bio
-  const [newBio, setNewBio] = useState(authUser?.bio || ""); // State to manage the new bio text
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [newBio, setNewBio] = useState(authUser?.bio || "");
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -45,7 +45,7 @@ const ProfilePage = () => {
 
   const saveBio = async () => {
     await updateProfile({ bio: newBio });
-    setIsEditingBio(false); // Stop editing after saving
+    setIsEditingBio(false);
   };
 
   return (
@@ -168,6 +168,25 @@ const ProfilePage = () => {
             </div>
           </div>
 
+          {/* Languages Section (for Sellers) */}
+          {authUser?.sellerStatus && (
+            <div className="mt-6 bg-base-300 rounded-xl p-6">
+              <h2 className="text-lg font-medium mb-4">Languages</h2>
+              <div className="space-y-3 text-sm">
+                {authUser.languages?.map((lang, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-2 border-b border-zinc-700"
+                  >
+                    <span>{lang.name}</span>
+                    <span className="text-zinc-400">{lang.level}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Account Information */}
           <div className="mt-6 bg-base-300 rounded-xl p-6">
             <h2 className="text-lg font-medium mb-4">Account Information</h2>
             <div className="space-y-3 text-sm">

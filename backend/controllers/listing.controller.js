@@ -299,24 +299,39 @@ export const getListing = async (req, res) => {
   }
 };
 
-// Get listings by provider
+// Get listings by provider with pagination
 export const getListingsByProvider = async (req, res) => {
   try {
     const { providerId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
 
-    // Fetch listings for the provider with approvalStatus: "approved"
+    const skip = (page - 1) * limit;
+
     const listings = await Listing.find({
       providerId,
       approvalStatus: "approved",
-    }).sort({
-      createdAt: -1,
-    });
+    })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
 
     if (listings.length === 0) {
       return res.status(404).json({ message: "No listings found" });
     }
 
-    res.status(200).json({ listings });
+    const totalListings = await Listing.countDocuments({
+      providerId,
+      approvalStatus: "approved",
+    });
+
+    res.status(200).json({
+      listings,
+      pagination: {
+        currentPage: Number(page),
+        totalPages: Math.ceil(totalListings / limit),
+        totalListings,
+      },
+    });
   } catch (error) {
     res
       .status(500)

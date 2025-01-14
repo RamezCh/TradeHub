@@ -101,17 +101,24 @@ export const useListingStore = create((set) => ({
     }
   },
 
-  // Action to fetch listings by provider ID
-  fetchListingsByProvider: async (providerId) => {
+  // Action to fetch listings by provider ID with pagination
+  fetchListingsByProvider: async (providerId, page = 1, limit = 10) => {
     set({ isLoadingListings: true });
 
     try {
       const response = await axiosInstance.get(
-        `/listings/provider/${providerId}`
+        `/listings/provider/${providerId}`,
+        {
+          params: { page, limit },
+        }
       );
       const data = response.data;
 
-      set({ listings: data.listings });
+      set({
+        listings: data.listings,
+        totalListings: data.pagination.totalListings,
+        totalListingsPages: data.pagination.totalPages,
+      });
     } catch (err) {
       set({ error: "Error fetching listings by provider" });
       toast.error("Error fetching listings by provider", err);
