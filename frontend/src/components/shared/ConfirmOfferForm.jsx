@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useOfferStore } from "../../store/useOfferStore";
 import InputField from "./InputField";
+import QrScanner from "react-qr-scanner";
 
 const ConfirmOfferForm = ({ offerId }) => {
   const [code, setCode] = useState("");
+  const [showScanner, setShowScanner] = useState(false);
   const confirmOffer = useOfferStore((state) => state.confirmOffer);
 
   const handleSubmit = async (e) => {
@@ -14,6 +16,18 @@ const ConfirmOfferForm = ({ offerId }) => {
     } catch (error) {
       console.error("Error confirming offer:", error);
     }
+  };
+
+  const handleScan = (data) => {
+    if (data) {
+      const scannedText = data.text || data;
+      setCode(scannedText);
+      setShowScanner(false);
+    }
+  };
+
+  const handleError = (err) => {
+    console.error("QR Code scan error:", err);
   };
 
   return (
@@ -32,6 +46,21 @@ const ConfirmOfferForm = ({ offerId }) => {
         <button type="submit" className="btn btn-primary w-full">
           Confirm
         </button>
+        <button
+          type="button"
+          className="btn btn-secondary w-full"
+          onClick={() => setShowScanner(!showScanner)}
+        >
+          {showScanner ? "Close Scanner" : "Scan QR Code"}
+        </button>
+        {showScanner && (
+          <QrScanner
+            delay={300}
+            onError={handleError}
+            onScan={handleScan}
+            style={{ width: "100%", height: "240px" }}
+          />
+        )}
       </form>
     </div>
   );
