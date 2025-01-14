@@ -97,5 +97,18 @@ export const useOfferStore = create((set) => ({
     }
   },
 
+  leaveReview: async (listingId, review) => {
+    set({ isLoading: true });
+    try {
+      await axiosInstance.post(`/listings/review/${listingId}`, review);
+      toast.success("Review submitted successfully");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Internal server error");
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   setCurrentPage: (page) => set({ currentPage: page }),
 }));

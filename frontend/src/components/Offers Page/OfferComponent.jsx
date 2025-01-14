@@ -1,4 +1,8 @@
+import { useState } from "react";
+import { useOfferStore } from "../../store/useOfferStore";
+import { useChatStore } from "../../store/useChatStore";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const OfferComponent = ({ offer }) => {
   const {
@@ -14,6 +18,32 @@ const OfferComponent = ({ offer }) => {
   } = offer;
 
   const { title, images } = listingId;
+
+  // State for offer reply
+  const [replyStatus, setReplyStatus] = useState("pending");
+  const [replyMessage, setReplyMessage] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Store hooks
+  const { replyToOffer, isLoading } = useOfferStore();
+  const { sendMessage } = useChatStore();
+
+  const handleReplyToOffer = async (e) => {
+    e.preventDefault();
+    try {
+      await replyToOffer(_id, replyStatus);
+      setIsModalOpen(false);
+      if (replyMessage.trim()) {
+        await sendMessage({
+          text: `Offer ${replyStatus} - ${replyMessage.trim()}`,
+        });
+      }
+      setReplyMessage("");
+    } catch (error) {
+      console.error("Failed to reply to offer:", error);
+      toast.error("Failed to reply to offer");
+    }
+  };
 
   return (
     <div className="card bg-base-200 shadow-xl my-4">
@@ -39,8 +69,6 @@ const OfferComponent = ({ offer }) => {
           </h3>
           {images && images.length > 0 && (
             <div className="mt-2 flex gap-2 overflow-x-auto">
-              {" "}
-              {/* Flex container for images */}
               {images.map((image, index) => (
                 <img
                   key={index}
@@ -87,8 +115,12 @@ const OfferComponent = ({ offer }) => {
         <div className="card-actions justify-end mt-4">
           {status === "pending" && (
             <>
-              <button className="btn btn-primary">Accept Offer</button>
-              <button className="btn btn-secondary">Reject Offer</button>
+              <button
+                className="btn btn-primary"
+                onClick={() => setIsModalOpen(true)}
+              >
+                Reply to Offer
+              </button>
             </>
           )}
           {status === "accepted" && (
@@ -103,6 +135,58 @@ const OfferComponent = ({ offer }) => {
           )}
         </div>
       </div>
+
+      {/* Offer Reply Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-base-100 p-6 rounded-lg w-full max-w-md">
+            <h2 className="text-lg font-bold mb-4">Reply to Offer</h2>
+            <form onSubmit={handleReplyToOffer}>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Status</span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={replyStatus}
+                  onChange={(e) => setReplyStatus(e.target.value)}
+                >
+                  <option value="pending">Choose Reply</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Message</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered w-full"
+                  placeholder="Type your message..."
+                  value={replyMessage}
+                  onChange={(e) => setReplyMessage(e.target.value)}
+                />
+              </div>
+              <div className="mt-4 flex justify-end gap-2">
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Sending..." : "Send"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

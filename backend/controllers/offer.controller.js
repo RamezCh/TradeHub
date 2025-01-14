@@ -192,9 +192,9 @@ export const getOffer = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized" });
     }
     const codeToScan =
-      userId === offer.sender.toString()
-        ? offer.receiverConfirmation.code
-        : offer.senderConfirmation.code;
+      userId.toString() === offer.sender.toString()
+        ? offer.senderConfirmation.code
+        : offer.receiverConfirmation.code;
     res.json({ offer, codeToScan });
   } catch (error) {
     console.error("Error fetching offer:", error);
@@ -207,20 +207,22 @@ export const confirmOffer = async (req, res) => {
   const { code } = req.body;
   const userId = req.user._id;
 
+  const normalizedCode = code.trim();
+
   try {
     const offer = await Offer.findById(offerId);
     if (!offer) {
       return res.status(404).json({ message: "Offer not found" });
     }
 
-    if (userId === offer.sender.toString()) {
-      if (code === offer.receiverConfirmation.code) {
+    if (userId.toString() === offer.sender.toString()) {
+      if (normalizedCode === offer.receiverConfirmation.code) {
         offer.senderConfirmation.confirmed = true;
       } else {
         return res.status(400).json({ message: "Invalid code" });
       }
-    } else if (userId === offer.receiver.toString()) {
-      if (code === offer.senderConfirmation.code) {
+    } else if (userId.toString() === offer.receiver.toString()) {
+      if (normalizedCode === offer.senderConfirmation.code) {
         offer.receiverConfirmation.confirmed = true;
       } else {
         return res.status(400).json({ message: "Invalid code" });

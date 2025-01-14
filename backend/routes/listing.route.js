@@ -10,11 +10,15 @@ import {
   getListingsByProvider,
   searchListings,
   getMyListings,
+  leaveReview,
+  editReview,
 } from "../controllers/listing.controller.js";
 
 const router = express.Router();
 
 // Define routes
+router.post("/review/:listingId", protectRoute, leaveReview); // works 100% correct
+router.put("/review/:listingId", protectRoute, editReview); // works 100% correct
 router.get("/search", searchListings); // works 100% correct
 router.post("/create", protectRoute, createListing); // does functionality, tested for one image, create multiple later on
 router.put("/edit/:id", protectRoute, editListing); // does functionality, tested for one image, create multiple later on

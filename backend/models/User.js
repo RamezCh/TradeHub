@@ -28,7 +28,6 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
-    rating: { type: Number, default: 0 },
     favProviders: [
       {
         _id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

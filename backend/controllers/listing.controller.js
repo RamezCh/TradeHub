@@ -472,3 +472,92 @@ export const getMyListings = async (req, res) => {
     });
   }
 };
+
+// Leave a Review
+export const leaveReview = async (req, res) => {
+  try {
+    const { listingId } = req.params;
+    const { rating, comment } = req.body;
+    const reviewer = req.user._id;
+
+    if (rating < 1 || rating > 5) {
+      return res
+        .status(400)
+        .json({ message: "Rating should be between 1 and 5" });
+    }
+    if (comment.length > 2000) {
+      return res
+        .status(400)
+        .json({ message: "Comment cannot exceed 2000 characters" });
+    }
+
+    const listing = await Listing.findById(listingId);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    const existingReview = listing.reviews.find(
+      (review) => review.reviewer.toString() === reviewer
+    );
+    if (existingReview) {
+      return res
+        .status(400)
+        .json({ message: "You have already reviewed this listing" });
+    }
+
+    listing.reviews.push({ reviewer, rating, comment });
+    await listing.save();
+
+    res.status(201).json({ message: "Review added successfully" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error adding review",
+      error: error.message,
+    });
+  }
+};
+
+// Edit a Review
+export const editReview = async (req, res) => {
+  try {
+    const { listingId, reviewId } = req.params;
+    const { rating, comment } = req.body;
+    const reviewer = req.user._id;
+
+    if (rating < 1 || rating > 5) {
+      return res
+        .status(400)
+        .json({ message: "Rating should be between 1 and 5" });
+    }
+    if (comment.length > 2000) {
+      return res
+        .status(400)
+        .json({ message: "Comment cannot exceed 2000 characters" });
+    }
+
+    const listing = await Listing.findById(listingId);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    const review = listing.reviews.id(reviewId);
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    if (review.reviewer.toString() !== reviewer) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    review.rating = rating;
+    review.comment = comment;
+    await listing.save();
+
+    res.status(200).json({ message: "Review updated successfully" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error updating review",
+      error: error.message,
+    });
+  }
+};
