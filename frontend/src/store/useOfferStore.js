@@ -37,4 +37,20 @@ export const useOfferStore = create((set) => ({
       set({ isLoading: false });
     }
   },
+
+  confirmOffer: async (offerId, code) => {
+    set({ isLoading: true });
+    try {
+      const response = await axiosInstance.post(`/offers/${offerId}/confirm`, {
+        code,
+      });
+      toast.success("Offer confirmed successfully");
+      return response.data.offer;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Internal server error");
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));

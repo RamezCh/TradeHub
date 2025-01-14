@@ -40,6 +40,7 @@ import SearchPage from "./pages/SearchPage.jsx";
 import ContactUsPage from "./pages/ContactUsPage.jsx";
 import AboutUsPage from "./pages/AboutUsPage.jsx";
 import FAQPage from "./pages/FAQPage.jsx";
+import OfferConfirmationPage from "./pages/OfferConfirmationPage.jsx";
 
 {
   /* Admin Pages */
@@ -156,6 +157,10 @@ const App = () => {
           <Route path="/contact-us" element={<ContactUsPage />} />
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/faq" element={<FAQPage />} />
+          <Route
+            path="/offers/:offerId/confirm"
+            element={<OfferConfirmationPage />}
+          />
           {/* Admin Routes */}
           <Route
             path="/admin/users"

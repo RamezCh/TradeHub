@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 
 const offerSchema = new mongoose.Schema(
   {
@@ -23,15 +24,46 @@ const offerSchema = new mongoose.Schema(
       required: true,
     },
     details: { type: String },
-    agreedOn: { type: String },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected"],
+      enum: ["pending", "accepted", "rejected", "completed"],
       default: "pending",
+    },
+
+    senderConfirmation: {
+      code: { type: String },
+      confirmed: { type: Boolean, default: false },
+    },
+    receiverConfirmation: {
+      code: { type: String },
+      confirmed: { type: Boolean, default: false },
     },
   },
   { timestamps: true }
 );
+
+const generateSecureCode = () => {
+  return crypto.randomBytes(16).toString("hex");
+};
+
+offerSchema.pre("save", function (next) {
+  if (this.isModified("status") && this.status === "accepted") {
+    this.senderConfirmation.code = generateSecureCode();
+    this.receiverConfirmation.code = generateSecureCode();
+  }
+  next();
+});
+
+offerSchema.pre("save", function (next) {
+  if (
+    this.senderConfirmation.confirmed &&
+    this.receiverConfirmation.confirmed &&
+    this.status !== "completed"
+  ) {
+    this.status = "completed";
+  }
+  next();
+});
 
 const Offer = mongoose.model("Offer", offerSchema);
 export default Offer;

@@ -133,3 +133,64 @@ export const replyToOffer = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getOffer = async (req, res) => {
+  const { offerId } = req.params;
+  const userId = req.user._id;
+
+  try {
+    const offer = await Offer.findById(offerId);
+    if (!offer) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+    if (
+      offer.sender.toString() !== userId.toString() &&
+      offer.receiver.toString() !== userId.toString()
+    ) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+    const codeToScan =
+      userId === offer.sender.toString()
+        ? offer.receiverConfirmation.code
+        : offer.senderConfirmation.code;
+    res.json({ offer, codeToScan });
+  } catch (error) {
+    console.error("Error fetching offer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const confirmOffer = async (req, res) => {
+  const { offerId } = req.params;
+  const { code } = req.body;
+  const userId = req.user._id;
+
+  try {
+    const offer = await Offer.findById(offerId);
+    if (!offer) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    if (userId === offer.sender.toString()) {
+      if (code === offer.receiverConfirmation.code) {
+        offer.senderConfirmation.confirmed = true;
+      } else {
+        return res.status(400).json({ message: "Invalid code" });
+      }
+    } else if (userId === offer.receiver.toString()) {
+      if (code === offer.senderConfirmation.code) {
+        offer.receiverConfirmation.confirmed = true;
+      } else {
+        return res.status(400).json({ message: "Invalid code" });
+      }
+    } else {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    await offer.save();
+    res.json({ message: "Confirmation successful", offer });
+  } catch (error) {
+    console.error("Error confirming offer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
