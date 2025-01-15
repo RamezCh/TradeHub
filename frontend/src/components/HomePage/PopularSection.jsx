@@ -7,7 +7,7 @@ import ItemCardSkeleton from "../skeletons/ItemCardSkeleton";
 
 const PopularSection = ({ type }) => {
   const [startIndex, setStartIndex] = useState(0);
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const {
     services,
@@ -24,9 +24,46 @@ const PopularSection = ({ type }) => {
   const totalListings = isServiceType ? totalServices : totalItems;
   const isLoadingListings = isServiceType ? isLoadingServices : isLoadingItems;
 
+  // Reset startIndex when itemsPerPage changes
+  useEffect(() => {
+    setStartIndex(0);
+  }, [itemsPerPage]);
+
+  // Debounce function
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(null, args);
+      }, delay);
+    };
+  };
+
+  const handleResize = () => {
+    if (window.innerWidth < 768) {
+      setItemsPerPage(1);
+    } else if (window.innerWidth >= 768 && window.innerWidth <= 1024) {
+      setItemsPerPage(3);
+    } else {
+      setItemsPerPage(5);
+    }
+  };
+
+  // Debounced handleResize
+  const handleResizeDebounced = debounce(handleResize, 100);
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResizeDebounced);
+    return () => {
+      window.removeEventListener("resize", handleResizeDebounced);
+    };
+  }, [handleResizeDebounced]);
+
   useEffect(() => {
     fetchListings(1, itemsPerPage, type);
-  }, [fetchListings, type]);
+  }, [fetchListings, type, itemsPerPage]);
 
   const handleNext = () => {
     if (startIndex + itemsPerPage < totalListings) {
@@ -76,7 +113,7 @@ const PopularSection = ({ type }) => {
               stiffness: 300,
               damping: 30,
             }}
-            key={startIndex}
+            key={`${startIndex}-${itemsPerPage}`}
           >
             {!isLoadingListings ? (
               listings ? (
