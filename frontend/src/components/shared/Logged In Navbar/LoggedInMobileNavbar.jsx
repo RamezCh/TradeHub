@@ -94,6 +94,13 @@ const LoggedInMobileNavbar = () => {
                   My Listings
                 </Link>
               )}
+              <Link
+                to="/offers"
+                className="btn btn-ghost w-full text-left text-sm"
+                onClick={toggleMenu}
+              >
+                Offers
+              </Link>
               <div className="flex items-center justify-around py-2">
                 {authUser && (
                   <NotificationDropdown isAuthenticated={authUser} />

@@ -17,6 +17,8 @@ import LoggedInNavbar from "./components/shared/Logged In Navbar/LoggedInNavbar"
 import LoggedInMobileNavbar from "./components/shared/Logged In Navbar/LoggedInMobileNavbar.jsx";
 import LoggedInPadNavbar from "./components/shared/Logged In Navbar/LoggedInPadNavbar.jsx";
 import AdminNavbar from "./components/shared/Admin Navbar/AdminNavbar.jsx";
+import AdminPadNavbar from "./components/shared/Admin Navbar/AdminPadNavbar.jsx";
+import AdminMobileNavbar from "./components/shared/Admin Navbar/AdminMobileNavbar.jsx";
 import Footer from "./components/shared/Footer";
 {
   /* Pages */
@@ -102,6 +104,12 @@ const App = () => {
           <div className="hidden lg:block">
             <AdminNavbar />
           </div>
+          <div className="hidden md:block lg:hidden">
+            <AdminPadNavbar />
+          </div>
+          <div className="block md:hidden">
+            <AdminMobileNavbar />
+          </div>
         </>
       )}
       <div className="h-16 mb-2 bg-black bg-opacity-55"></div>
@@ -160,9 +168,12 @@ const App = () => {
           <Route path="/faq" element={<FAQPage />} />
           <Route
             path="/offers/:offerId/confirm"
-            element={<OfferConfirmationPage />}
+            element={authUser ? <OfferConfirmationPage /> : <Navigate to="/" />}
           />
-          <Route path="/offers" element={<OffersPage />} />
+          <Route
+            path="/offers"
+            element={authUser ? <OffersPage /> : <Navigate to="/" />}
+          />
           {/* Admin Routes */}
           <Route
             path="/admin/users"

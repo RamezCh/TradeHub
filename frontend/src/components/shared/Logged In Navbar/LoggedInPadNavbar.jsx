@@ -72,6 +72,13 @@ const LoggedInPadNavbar = () => {
                 </Link>
               )}
               <Link
+                to="/offers"
+                className="btn btn-ghost w-full text-left text-sm"
+                onClick={toggleMenu}
+              >
+                Offers
+              </Link>
+              <Link
                 to="/settings"
                 className="btn btn-ghost w-full text-left text-sm"
                 onClick={toggleMenu}

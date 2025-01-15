@@ -87,6 +87,13 @@ const LoggedInNavbar = () => {
                       </Link>
                     )}
                     <Link
+                      to="/offers"
+                      className="flex items-center gap-2 p-2 text-xl text-gray-800 hover:bg-gray-100 rounded-md"
+                      onClick={closeDropdown}
+                    >
+                      Offers
+                    </Link>
+                    <Link
                       to="/inbox"
                       className="flex items-center gap-2 p-2 text-xl text-gray-800 hover:bg-gray-100 rounded-md"
                       onClick={closeDropdown}
