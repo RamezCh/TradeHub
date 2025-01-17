@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import InputField from "../components/shared/InputField.jsx";
-import TextArea from "../components/shared/TextArea.jsx";
-import Dropdown from "../components/shared/Dropdown.jsx";
-import ImageInput from "../components/shared/ImageInput.jsx";
-import RadioButton from "../components/shared/RadioButton.jsx";
+import InputField from "../components/shared/InputField";
+import TextArea from "../components/shared/TextArea";
+import Dropdown from "../components/shared/Dropdown";
+import ImageInput from "../components/shared/ImageInput";
+import RadioButton from "../components/shared/RadioButton";
 import { useLocationStore } from "../store/useLocationStore";
 import { useCategoryStore } from "../store/useCategoryStore";
 import { useListingStore } from "../store/useListingStore";
