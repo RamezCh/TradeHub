@@ -20,6 +20,7 @@
     "react-qr-scanner": "^1.0.0-alpha.11",
     "react-router-dom": "^7.0.2",
     "recharts": "^2.15.0",
+    "tradehub": "file:..",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
