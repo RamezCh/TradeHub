@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAdminStore } from "../../store/useAdminStore.js";
-import TextArea from "../../components/shared/Textarea.jsx";
+import TextArea from "../../components/shared/TextArea.jsx";
 import {
   Loader,
   Edit,
