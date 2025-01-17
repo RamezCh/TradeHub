@@ -1,7 +1,6 @@
 {
   "type": "module",
   "dependencies": {
-    "path": "^0.12.7",
     "@sendgrid/mail": "^8.1.4",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
@@ -12,6 +11,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.3",
     "nodemailer": "^6.9.16",
+    "path": "^0.12.7",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "tradehub": "file:.."
