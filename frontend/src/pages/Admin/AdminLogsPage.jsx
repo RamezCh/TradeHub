@@ -53,16 +53,16 @@ const AdminLogsPage = () => {
             <div className="card-body">
               <h2 className="text-xl font-bold text-primary">{log.action}</h2>
               <p className="text-sm text-secondary mb-4">{log.targetId}</p>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-neutral">
                 <strong>Performed By:</strong>{" "}
                 {`${log?.performedBy?.firstName} ${log?.performedBy?.lastName} @ ${log?.performedBy?._id}`}
               </p>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-neutral">
                 <strong>Details:</strong> {log.details}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-neutral">
                 <strong>Timestamp:</strong>{" "}
-                {new Date(log.timestamp).toLocaleString()}
+                {new Date(log.createdAt).toLocaleString()}
               </p>
             </div>
           </div>

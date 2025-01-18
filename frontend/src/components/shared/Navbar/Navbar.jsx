@@ -47,7 +47,7 @@ const Navbar = () => {
             {/* Signup */}
             <Link
               to="/signup"
-              className="btn btn-m gap-2 transition-colors text-xl"
+              className="btn btn-primary btn-m gap-2 transition-colors text-xl"
             >
               Join
             </Link>

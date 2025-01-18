@@ -20,7 +20,7 @@ const SettingsPage = () => {
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold">Theme</h2>
           <p className="text-sm text-base-content/70">
-            Choose a theme for your chat interface
+            Choose a theme for the UI
           </p>
         </div>
 
@@ -66,7 +66,7 @@ const SettingsPage = () => {
                       J
                     </div>
                     <div>
-                      <h3 className="font-medium text-sm">John Doe</h3>
+                      <h3 className="font-medium text-sm">Alex Smith</h3>
                       <p className="text-xs text-base-content/70">Online</p>
                     </div>
                   </div>

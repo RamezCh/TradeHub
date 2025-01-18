@@ -12,7 +12,7 @@ const ItemCard = ({ itemId, title, image, location, createdAt }) => {
         <img src={image} alt={title} className="w-full h-full object-cover" />
       </figure>
       <div className="card-body">
-        <h2 className="card-title text-secondary-content">{title}</h2>
+        <h2 className="card-title text-primary">{title}</h2>
         <p className="text-sm text-neutral-content">
           <strong>{location}, </strong> {formatDate(createdAt)}
         </p>

@@ -59,7 +59,7 @@ const ListingCard = ({
             </span>
             <Link to={linkPath}>
               <button
-                className="btn btn-sm btn-outline"
+                className="btn btn-primary btn-sm btn-outline"
                 onClick={() => setIsModalOpen(true)}
               >
                 {btnText}
